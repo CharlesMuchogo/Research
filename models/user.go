@@ -7,7 +7,6 @@ import (
 
 type User struct {
 	gorm.Model
-
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 	Phone     string `json:"phone"`

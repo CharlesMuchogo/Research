@@ -1,14 +1,36 @@
 package controllers
 
 import (
+	"awesomeProject/auth"
+	"awesomeProject/models"
 	"awesomeProject/utils"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"time"
 )
 
 func Upload(context *gin.Context) {
+	var results models.Results
+	if err := context.ShouldBindJSON(&results); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		context.Abort()
+		return
+	}
+
+	tokenString := context.GetHeader("Authorization")
+
+	claims, err := auth.GetUserDetailsFromToken(tokenString)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	email := claims.Email
+	firstName := claims.FirstName
+	lastName := claims.LastName
+	phone := claims.Phone
 
 	spreadsheetID := "12nLNSb0n9kdpoETkPQjTEx-MzmbuEPdq5YCrnXqT2JU"
 	credentialsFile := "./credentials.json"
@@ -16,10 +38,13 @@ func Upload(context *gin.Context) {
 	if err != nil {
 		log.Fatalf("Error getting Google Sheets client: %v", err)
 	}
-	sheetRange := "Sheet1!A1:G5"
+
+	now := time.Now()
+	formattedDateTime := now.Format("02/01/2006 15:04")
+
+	sheetRange := "Sheet1!A1:J5"
 	values := [][]interface{}{
-		{"Baby Boo", 23, "Kenya"},
-		{"chaos", 22, "Germany"},
+		{firstName, lastName, phone, email, results.Results, results.PartnerResults, results.Image, results.PartnerImage, formattedDateTime},
 	}
 
 	err = utils.WriteDataToSpreadsheet(client, spreadsheetID, sheetRange, values)

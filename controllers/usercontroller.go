@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"awesomeProject/auth"
 	"awesomeProject/database"
 	"awesomeProject/models"
 	"net/http"
@@ -28,6 +29,12 @@ func RegisterUser(context *gin.Context) {
 		context.Abort()
 		return
 	}
+	userToken, err := auth.GenerateJWT(user)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Failed to generate access token, please login with your credentials"})
+		context.Abort()
+		return
+	}
 
-	context.JSON(http.StatusCreated, gin.H{"userId": user.ID, "email": user.Email, "username": user.Username})
+	context.JSON(http.StatusCreated, gin.H{"userId": user.ID, "email": user.Email, "firstName": user.FirstName, "lastName": user.LastName, "token": userToken})
 }
