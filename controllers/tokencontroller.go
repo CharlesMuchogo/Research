@@ -44,5 +44,5 @@ func GenerateToken(context *gin.Context) {
 		context.Abort()
 		return
 	}
-	context.JSON(http.StatusOK, gin.H{"token": tokenString})
+	context.JSON(http.StatusOK, gin.H{"message": "Login success", "user": user, "token": tokenString})
 }

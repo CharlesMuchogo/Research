@@ -7,11 +7,12 @@ import (
 
 type User struct {
 	gorm.Model
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Phone     string `json:"phone"`
-	Email     string `json:"email" gorm:"unique"`
-	Password  string `json:"password"`
+	FirstName    string `json:"firstName"`
+	LastName     string `json:"lastName"`
+	Phone        string `json:"phone"`
+	Email        string `json:"email" gorm:"unique"`
+	Password     string `json:"-"`
+	ProfilePhoto string `json:"profilePhoto"`
 }
 
 func (user *User) HashPassword(password string) error {
