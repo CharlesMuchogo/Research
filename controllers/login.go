@@ -18,29 +18,28 @@ func GenerateToken(context *gin.Context) {
 	var request TokenRequest
 	var user models.User
 	if err := context.ShouldBindJSON(&request); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		context.Abort()
 		return
 	}
-
 	// check if email exists and password is correct
 	record := database.Instance.Where("email = ?", request.Email).First(&user)
 	if record.Error != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": record.Error.Error()})
+		context.JSON(http.StatusInternalServerError, gin.H{"message": record.Error.Error()})
 		context.Abort()
 		return
 	}
 
 	credentialError := user.CheckPassword(request.Password)
 	if credentialError != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "invalid credentials"})
 		context.Abort()
 		return
 	}
 
 	tokenString, err := auth.GenerateJWT(user)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		context.Abort()
 		return
 	}

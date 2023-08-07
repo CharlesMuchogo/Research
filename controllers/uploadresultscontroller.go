@@ -39,12 +39,17 @@ func Upload(context *gin.Context) {
 		log.Fatalf("Error getting Google Sheets client: %v", err)
 	}
 
-	now := time.Now()
+	nairobiLocation, err := time.LoadLocation("Africa/Nairobi")
+	if err != nil {
+		fmt.Println("Error loading location:", err)
+		return
+	}
+	now := time.Now().In(nairobiLocation)
 	formattedDateTime := now.Format("02/01/2006 15:04")
 
 	sheetRange := "Sheet1!A1:J5"
 	values := [][]interface{}{
-		{firstName, lastName, phone, email, results.Results, results.PartnerResults, results.Image, results.PartnerImage, formattedDateTime},
+		{firstName, lastName, phone, email, results.Results, results.PartnerResults, results.Image, results.PartnerImage, results.CareOption, formattedDateTime},
 	}
 
 	err = utils.WriteDataToSpreadsheet(client, spreadsheetID, sheetRange, values)

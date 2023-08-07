@@ -10,7 +10,7 @@ import (
 func main() {
 	// Initialize Database
 	database.Connect("postgresql://charles:Z3SW8QMADfrxI_BdyvRmIA@matibabu-5642.8nj.cockroachlabs.cloud:26257/research?sslmode=verify-full")
-	database.Migrate()
+	//database.Migrate()
 
 	// Initialize Router
 	router := initRouter()
