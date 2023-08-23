@@ -45,3 +45,7 @@ func GenerateToken(context *gin.Context) {
 	}
 	context.JSON(http.StatusOK, gin.H{"message": "Login success", "user": user, "token": tokenString})
 }
+
+func ResetPassword(context *gin.Context) {
+	context.HTML(200, "resetPassword.html", nil)
+}

@@ -19,9 +19,11 @@ func main() {
 
 func initRouter() *gin.Engine {
 	router := gin.Default()
+	router.LoadHTMLGlob("templates/*")
 	api := router.Group("/api")
 	{
 		api.POST("/login", controllers.GenerateToken)
+		api.GET("/forgot-password", controllers.ResetPassword)
 		api.POST("/user/register", controllers.RegisterUser)
 		secured := api.Group("/test").Use(middlewares.Auth())
 		{
