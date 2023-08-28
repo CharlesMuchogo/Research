@@ -23,7 +23,8 @@ func initRouter() *gin.Engine {
 	api := router.Group("/api")
 	{
 		api.POST("/login", controllers.GenerateToken)
-		api.GET("/forgot-password", controllers.ResetPassword)
+		api.POST("/forgot_password", controllers.ForgotPasword)
+		api.GET("/reset_password", controllers.ResetPassword)
 		api.POST("/user/register", controllers.RegisterUser)
 		secured := api.Group("/test").Use(middlewares.Auth())
 		{
