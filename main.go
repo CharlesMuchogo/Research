@@ -29,7 +29,9 @@ func initRouter() *gin.Engine {
 		secured := api.Group("/test").Use(middlewares.Auth())
 		{
 			secured.POST("/upload", controllers.Upload)
+			secured.POST("/check_authentication_status", controllers.CheckAuthenticationStatus)
 		}
 	}
 	return router
 }
+	
