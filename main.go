@@ -5,27 +5,38 @@ import (
 	"awesomeProject/database"
 	"awesomeProject/middlewares"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"log"
+	"os"
 )
 
 func main() {
-	// Initialize Database
-	database.Connect("postgresql://charles:Z3SW8QMADfrxI_BdyvRmIA@matibabu-5642.8nj.cockroachlabs.cloud:26257/research?sslmode=verify-full")
-	//database.Migrate()
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
-	// Initialize Router
+	connectionString := database.GetPostgresConnectionString()
+
+	// Initialize Database
+	database.Connect(connectionString)
+	database.Migrate()
+
 	router := initRouter()
 	router.Run(":9000")
 }
 
 func initRouter() *gin.Engine {
 	router := gin.Default()
+	assetsDir := os.Getenv("PHOTO_DIRECTORY")
+
+	router.Static("/images", assetsDir)
 	router.LoadHTMLGlob("templates/*")
 	api := router.Group("/api")
 	{
 		api.POST("/login", controllers.GenerateToken)
 		api.POST("/forgot_password", controllers.ForgotPasword)
 		api.GET("/reset_password", controllers.ResetPassword)
-		api.POST("/user/register", controllers.RegisterUser)
+		api.POST("/register", controllers.RegisterUser)
 		secured := api.Group("/test").Use(middlewares.Auth())
 		{
 			secured.POST("/upload", controllers.Upload)
@@ -34,4 +45,3 @@ func initRouter() *gin.Engine {
 	}
 	return router
 }
-	

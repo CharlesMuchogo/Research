@@ -12,16 +12,19 @@ import (
 )
 
 func Upload(context *gin.Context) {
-	var results models.Results
-	if err := context.ShouldBindJSON(&results); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		context.Abort()
+
+	userTestResultsPhoto, err := context.FormFile("user_photo")
+	partnerTestResultsPhoto, err := context.FormFile("partner_photo")
+
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
 	tokenString := context.GetHeader("Authorization")
 
 	claims, err := auth.GetUserDetailsFromToken(tokenString)
+
 	if err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
@@ -31,6 +34,22 @@ func Upload(context *gin.Context) {
 	firstName := claims.FirstName
 	lastName := claims.LastName
 	phone := claims.Phone
+
+	userImageLink, savePhotoError := utils.SavePhoto(context, userTestResultsPhoto, phone)
+	partnerImageLink, savePhotoError := utils.SavePhoto(context, partnerTestResultsPhoto, phone)
+
+	if savePhotoError != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Error uploading test image"})
+		return
+	}
+
+	results := models.Results{
+		Results:        context.PostForm("results"),
+		PartnerResults: context.PostForm("partner_results"),
+		Image:          userImageLink,
+		PartnerImage:   partnerImageLink,
+		CareOption:     context.PostForm("care_option"),
+	}
 
 	spreadsheetID := "12nLNSb0n9kdpoETkPQjTEx-MzmbuEPdq5YCrnXqT2JU"
 	credentialsFile := "./credentials.json"
