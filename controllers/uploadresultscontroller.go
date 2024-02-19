@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -51,7 +52,7 @@ func Upload(context *gin.Context) {
 		CareOption:     context.PostForm("care_option"),
 	}
 
-	spreadsheetID := "12nLNSb0n9kdpoETkPQjTEx-MzmbuEPdq5YCrnXqT2JU"
+	spreadsheetID := os.Getenv("SPREADSHEET_ID")
 	credentialsFile := "./credentials.json"
 	client, err := utils.GetClient(credentialsFile)
 	if err != nil {
