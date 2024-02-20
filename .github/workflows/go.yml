@@ -19,8 +19,12 @@ jobs:
       run: |
         echo "${{ secrets.ENV }}" > .env
         echo "${{ secrets.CREDENTIALS_JSON }}" > credentials.json
+        echo "------------------------------------- credentials ----------------------------------" 
         cat credentials.json
+        echo "------------------------------------- .env  ----------------------------------------" 
         cat .env
+        echo "------------------------------------------------------------------------------------" 
+
         docker build --secret id=ENV,src=.env --secret id=CREDENTIALS_JSON,src=credentials.json --tag charlesmuchogo/research:latest .
 
     - name: Login to Docker Hub
