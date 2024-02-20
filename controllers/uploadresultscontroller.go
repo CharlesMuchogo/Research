@@ -14,13 +14,8 @@ import (
 
 func Upload(context *gin.Context) {
 
-	userTestResultsPhoto, err := context.FormFile("user_photo")
-	partnerTestResultsPhoto, err := context.FormFile("partner_photo")
-
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
-	}
+	userTestResultsPhoto, _ := context.FormFile("user_photo")
+	partnerTestResultsPhoto, _ := context.FormFile("partner_photo")
 
 	tokenString := context.GetHeader("Authorization")
 
@@ -36,13 +31,24 @@ func Upload(context *gin.Context) {
 	lastName := claims.LastName
 	phone := claims.Phone
 
-	userImageLink, savePhotoError := utils.SavePhoto(context, userTestResultsPhoto, phone)
-	partnerImageLink, savePhotoError := utils.SavePhoto(context, partnerTestResultsPhoto, phone)
+	var userImageLink string
+	if userTestResultsPhoto != nil {
+		userImageLink, err = utils.SavePhoto(context, userTestResultsPhoto, phone)
+		if err != nil {
+			fmt.Println(err.Error())
+			context.JSON(http.StatusInternalServerError, gin.H{"message": "Error uploading user test image"})
+			return
+		}
+	}
 
-	if savePhotoError != nil {
-		fmt.Println(savePhotoError.Error())
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Error uploading test image"})
-		return
+	var partnerImageLink string
+	if partnerTestResultsPhoto != nil {
+		partnerImageLink, err = utils.SavePhoto(context, partnerTestResultsPhoto, phone)
+		if err != nil {
+			fmt.Println(err.Error())
+			context.JSON(http.StatusInternalServerError, gin.H{"message": "Error uploading partner test image"})
+			return
+		}
 	}
 
 	results := models.Results{

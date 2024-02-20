@@ -19,7 +19,7 @@ func main() {
 
 	// Initialize Database
 	database.Connect(connectionString)
-	database.Migrate()
+	//database.Migrate()
 
 	router := initRouter()
 	router.Run(":9000")
