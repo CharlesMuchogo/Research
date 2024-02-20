@@ -18,7 +18,7 @@ jobs:
         DOCKER_BUILDKIT: 1
       run: |
         echo "${{ secrets.ENV }}" > .env
-        echo "${{ secrets.CREDENTIALS_JSON }}" > credentials.json
+        echo "${{ secrets.CREDENTIALS_JSON }}" | base64 --decode > credentials.json
         echo "------------------------------------- credentials ----------------------------------" 
         cat credentials.json
         echo "------------------------------------- .env  ----------------------------------------" 
