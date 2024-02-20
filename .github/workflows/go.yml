@@ -40,7 +40,7 @@ jobs:
         
       run: |
         echo "$PRIVATE_KEY" > private_key.pem && chmod 600 private_key.pem
-        ssh -o StrictHostKeyChecking=no -i private_key.pem ${HOSTNAME} 'sudo docker stop $(docker ps -q --filter ancestor=charlesmuchogo/research:latest) && sudo docker pull charlesmuchogo/research:latest && sudo docker run --rm -p 9000:9000 -v /home/ubuntu/research:/app/research -d charlesmuchogo/research:latest && sudo systemctl restart nginx'
+        ssh -o StrictHostKeyChecking=no -i private_key.pem ${HOSTNAME} 'sudo docker stop $(docker ps -q --filter ancestor=charlesmuchogo/research:latest) && sudo docker pull charlesmuchogo/research:latest && sudo docker run --rm -p 9000:9000 -v myvolume:/app/images -d charlesmuchogo/research:latest && sudo systemctl restart nginx'
           curl -X POST -H 'Content-type: application/json' --data '{
            "text": "I have deployed your research project changes successfully!. You can now test your changes"
           }' ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"mime/multipart"
 	"os"
 	"path/filepath"
@@ -12,7 +13,9 @@ import (
 func SavePhoto(c *gin.Context, file *multipart.FileHeader, userID string) (string, error) {
 	assetsDir := os.Getenv("PHOTO_DIRECTORY")
 	domain := os.Getenv("DOMAIN_NAME")
+	log.Printf("assetsDir: %s", assetsDir)
 	if _, err := os.Stat(assetsDir); os.IsNotExist(err) {
+		log.Printf("Directory %s does not exist. Creating...", assetsDir)
 		if err := os.Mkdir(assetsDir, 0755); err != nil {
 			return "", err
 		}

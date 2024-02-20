@@ -40,6 +40,7 @@ func Upload(context *gin.Context) {
 	partnerImageLink, savePhotoError := utils.SavePhoto(context, partnerTestResultsPhoto, phone)
 
 	if savePhotoError != nil {
+		fmt.Println(savePhotoError.Error())
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Error uploading test image"})
 		return
 	}
