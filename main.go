@@ -37,7 +37,7 @@ func initRouter() *gin.Engine {
 		api.POST("/forgot_password", controllers.ForgotPasword)
 		api.GET("/reset_password", controllers.ResetPassword)
 		api.POST("/register", controllers.RegisterUser)
-		secured := api.Group("/test").Use(middlewares.Auth())
+		secured := api.Group("/mobile").Use(middlewares.Auth())
 		{
 			secured.POST("/upload", controllers.Upload)
 			secured.POST("/check_authentication_status", controllers.CheckAuthenticationStatus)
