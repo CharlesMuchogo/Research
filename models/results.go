@@ -7,6 +7,6 @@ type Results struct {
 	Image          string `json:"image"`
 	PartnerImage   string `json:"partnerImage"`
 	CareOption     string `json:"care_option"`
-	UserId         string `json:"userId"`
+	UserId         uint   `json:"userId"`
 	Date           string `json:"date"`
 }

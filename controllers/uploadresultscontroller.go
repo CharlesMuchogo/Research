@@ -31,7 +31,7 @@ func Upload(context *gin.Context) {
 	firstName := claims.FirstName
 	lastName := claims.LastName
 	phone := claims.Phone
-	userId := claims.Id
+	userId := claims.ID
 
 	var userImageLink string
 	if userTestResultsPhoto != nil {
@@ -83,17 +83,34 @@ func Upload(context *gin.Context) {
 		{firstName, lastName, phone, email, results.Results, results.PartnerResults, results.Image, results.PartnerImage, results.CareOption, formattedDateTime},
 	}
 
-	err = utils.WriteDataToSpreadsheet(client, spreadsheetID, sheetRange, values)
-	if err != nil {
-		log.Fatalf("Error writing data to spreadsheet: %v", err)
-	}
 	record := database.Instance.Create(&results)
 	if record.Error != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": record.Error.Error()})
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong"})
 		context.Abort()
 		return
 	}
 
-	fmt.Println("Data written to the spreadsheet successfully!")
+	fmt.Println(record.Row().Scan(&results))
+
+	err = utils.WriteDataToSpreadsheet(client, spreadsheetID, sheetRange, values)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong"})
+	}
+
 	context.JSON(http.StatusOK, gin.H{"message": "Test submitted successfully"})
+}
+
+func GetResults(context *gin.Context) {
+	var results []models.Results
+
+	tokenString := context.GetHeader("Authorization")
+
+	user, _ := auth.GetUserDetailsFromToken(tokenString)
+
+	if err := database.Instance.Where("user_id = ?", user.ID).Find(&results).Error; err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again", "results": results})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "Test results fetched successfully", "results": results})
 }

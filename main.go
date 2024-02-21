@@ -40,6 +40,7 @@ func initRouter() *gin.Engine {
 		secured := api.Group("/mobile").Use(middlewares.Auth())
 		{
 			secured.POST("/upload", controllers.Upload)
+			secured.GET("/results", controllers.GetResults)
 			secured.POST("/check_authentication_status", controllers.CheckAuthenticationStatus)
 		}
 	}
