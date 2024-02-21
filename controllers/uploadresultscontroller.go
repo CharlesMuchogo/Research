@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"awesomeProject/auth"
+	"awesomeProject/database"
 	"awesomeProject/models"
 	"awesomeProject/utils"
 	"fmt"
@@ -30,6 +31,7 @@ func Upload(context *gin.Context) {
 	firstName := claims.FirstName
 	lastName := claims.LastName
 	phone := claims.Phone
+	userId := claims.Id
 
 	var userImageLink string
 	if userTestResultsPhoto != nil {
@@ -51,14 +53,6 @@ func Upload(context *gin.Context) {
 		}
 	}
 
-	results := models.Results{
-		Results:        context.PostForm("results"),
-		PartnerResults: context.PostForm("partner_results"),
-		Image:          userImageLink,
-		PartnerImage:   partnerImageLink,
-		CareOption:     context.PostForm("care_option"),
-	}
-
 	spreadsheetID := os.Getenv("SPREADSHEET_ID")
 	credentialsFile := "./credentials.json"
 	client, err := utils.GetClient(credentialsFile)
@@ -74,6 +68,16 @@ func Upload(context *gin.Context) {
 	now := time.Now().In(nairobiLocation)
 	formattedDateTime := now.Format("02/01/2006 15:04")
 
+	results := models.Results{
+		Results:        context.PostForm("results"),
+		PartnerResults: context.PostForm("partner_results"),
+		Image:          userImageLink,
+		PartnerImage:   partnerImageLink,
+		CareOption:     context.PostForm("care_option"),
+		Date:           formattedDateTime,
+		UserId:         userId,
+	}
+
 	sheetRange := "Sheet1!A1:J5"
 	values := [][]interface{}{
 		{firstName, lastName, phone, email, results.Results, results.PartnerResults, results.Image, results.PartnerImage, results.CareOption, formattedDateTime},
@@ -82,6 +86,12 @@ func Upload(context *gin.Context) {
 	err = utils.WriteDataToSpreadsheet(client, spreadsheetID, sheetRange, values)
 	if err != nil {
 		log.Fatalf("Error writing data to spreadsheet: %v", err)
+	}
+	record := database.Instance.Create(&results)
+	if record.Error != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": record.Error.Error()})
+		context.Abort()
+		return
 	}
 
 	fmt.Println("Data written to the spreadsheet successfully!")
