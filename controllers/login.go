@@ -16,8 +16,9 @@ type TokenRequest struct {
 }
 
 type ForgotPaswordRequest struct {
-	Email    string `json:"email"`
+	Email string `json:"email"`
 }
+
 func GenerateToken(context *gin.Context) {
 	var request TokenRequest
 	var user models.User
@@ -78,4 +79,7 @@ func ForgotPasword(context *gin.Context) {
 
 func ResetPassword(context *gin.Context) {
 	context.HTML(200, "resetPassword.html", nil)
+}
+func DeleteAccountForm(context *gin.Context) {
+	context.HTML(200, "DeleteAccount.html", nil)
 }
