@@ -37,6 +37,7 @@ func initRouter() *gin.Engine {
 		api.POST("/forgot_password", controllers.ForgotPasword)
 		api.GET("/reset_password", controllers.ResetPassword)
 		api.GET("/delete_account", controllers.DeleteAccountForm)
+		api.GET("/privacy_policy", controllers.PrivacyPolicy)
 		api.POST("/register", controllers.RegisterUser)
 		secured := api.Group("/mobile").Use(middlewares.Auth())
 		{
