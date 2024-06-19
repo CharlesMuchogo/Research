@@ -97,7 +97,7 @@ func Upload(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong"})
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": "Test submitted successfully"})
+	context.JSON(http.StatusOK, gin.H{"message": "Test submitted successfully", "data": results})
 }
 
 func GetResults(context *gin.Context) {

@@ -37,3 +37,33 @@ func RegisterUser(context *gin.Context) {
 	}
 	context.JSON(http.StatusCreated, gin.H{"message": "Signup success", "user": user, "token": userToken})
 }
+
+func UpdateUserDetails(context *gin.Context) {
+	var user models.User
+
+	if err := context.ShouldBindJSON(&user); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		context.Abort()
+		return
+	}
+
+	token := context.GetHeader("Authorization")
+
+	userFromToken, _ := auth.GetUserDetailsFromToken(token)
+
+	user.ID = userFromToken.ID
+	user.Email = userFromToken.Email
+	user.Phone = userFromToken.Phone
+	user.Password = userFromToken.Password
+	user.FirstName = userFromToken.FirstName
+	user.LastName = userFromToken.LastName
+	user.ProfilePhoto = userFromToken.ProfilePhoto
+
+	if err := database.Instance.Save(&user).Error; err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not update user details"})
+		context.Abort()
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "Details updated successfully", "user": user})
+}

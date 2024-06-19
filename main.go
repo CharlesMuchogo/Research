@@ -43,6 +43,7 @@ func initRouter() *gin.Engine {
 		{
 			secured.POST("/upload", controllers.Upload)
 			secured.GET("/results", controllers.GetResults)
+			secured.POST("/user", controllers.UpdateUserDetails)
 			secured.POST("/check_authentication_status", controllers.CheckAuthenticationStatus)
 		}
 	}
