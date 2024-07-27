@@ -4,10 +4,12 @@ import (
 	"awesomeProject/controllers"
 	"awesomeProject/database"
 	"awesomeProject/middlewares"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
+	"time"
 )
 
 func main() {
@@ -28,6 +30,17 @@ func main() {
 func initRouter() *gin.Engine {
 	router := gin.Default()
 	assetsDir := os.Getenv("PHOTO_DIRECTORY")
+
+	config := cors.Config{
+		AllowOrigins:     []string{"http://localhost:44721"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}
+
+	router.Use(cors.New(config))
 
 	router.Static("/images", assetsDir)
 	router.LoadHTMLGlob("templates/*")
