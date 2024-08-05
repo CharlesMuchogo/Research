@@ -32,13 +32,13 @@ func initRouter() *gin.Engine {
 	assetsDir := os.Getenv("PHOTO_DIRECTORY")
 
 	config := cors.Config{
+		AllowAllOrigins:  true,
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}
-	config.AllowAllOrigins = true
 
 	router.Use(cors.New(config))
 
@@ -54,7 +54,7 @@ func initRouter() *gin.Engine {
 		api.POST("/register", controllers.RegisterUser)
 		secured := api.Group("/mobile").Use(middlewares.Auth())
 		{
-			secured.POST("/upload", controllers.Upload)
+			secured.POST("/results", controllers.UploadResults)
 			secured.GET("/results", controllers.GetResults)
 			secured.POST("/user", controllers.UpdateUserDetails)
 			secured.POST("/check_authentication_status", controllers.CheckAuthenticationStatus)

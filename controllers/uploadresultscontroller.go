@@ -10,10 +10,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
-func Upload(context *gin.Context) {
+func UploadResults(context *gin.Context) {
 
 	userTestResultsPhoto, _ := context.FormFile("user_photo")
 	partnerTestResultsPhoto, _ := context.FormFile("partner_photo")
@@ -102,15 +103,22 @@ func Upload(context *gin.Context) {
 
 func GetResults(context *gin.Context) {
 	var results []models.Results
+	fetchAll := context.Query("all")
 
 	tokenString := context.GetHeader("Authorization")
 
 	user, _ := auth.GetUserDetailsFromToken(tokenString)
 
-	if err := database.Instance.Where("user_id = ?", user.ID).Find(&results).Error; err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again", "results": results})
-		return
+	if fetchAllBool, err := strconv.ParseBool(fetchAll); err == nil && fetchAllBool {
+		if err := database.Instance.Find(&results).Error; err != nil {
+			context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
+			return
+		}
+	} else {
+		if err := database.Instance.Where("user_id = ?", user.ID).Find(&results).Error; err != nil {
+			context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
+			return
+		}
 	}
-
 	context.JSON(http.StatusOK, gin.H{"message": "Test results fetched successfully", "results": results})
 }

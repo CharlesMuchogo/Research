@@ -8,5 +8,6 @@ type Results struct {
 	PartnerImage   string `json:"partnerImage"`
 	CareOption     string `json:"care_option"`
 	UserId         uint   `json:"userId"`
+	User           User   `json:"user"`
 	Date           string `json:"date"`
 }
