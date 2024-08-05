@@ -58,6 +58,8 @@ func initRouter() *gin.Engine {
 		api.POST("/register", controllers.RegisterUser)
 		secured := api.Group("/mobile").Use(middlewares.Auth())
 		{
+			secured.POST("/clinics", controllers.CreateClinic)
+			secured.GET("/clinics", controllers.GetClinics)
 			secured.POST("/results", controllers.UploadResults)
 			secured.GET("/results", controllers.GetResults)
 			secured.POST("/user", controllers.UpdateUserDetails)
