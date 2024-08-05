@@ -10,4 +10,5 @@ type Results struct {
 	UserId         uint   `json:"userId"`
 	User           User   `json:"user"`
 	Date           string `json:"date"`
+	Status         string `json:"status"`
 }

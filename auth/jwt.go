@@ -18,7 +18,6 @@ func GenerateJWT(user models.User) (tokenString string, err error) {
 		FirstName:    user.FirstName,
 		LastName:     user.LastName,
 		Phone:        user.Phone,
-		Password:     user.Password,
 		ProfilePhoto: user.ProfilePhoto,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),

@@ -15,11 +15,11 @@ type TokenRequest struct {
 	Password string `json:"password"`
 }
 
-type ForgotPaswordRequest struct {
+type ForgotPasswordRequest struct {
 	Email string `json:"email"`
 }
 
-func GenerateToken(context *gin.Context) {
+func Login(context *gin.Context) {
 	var request TokenRequest
 	var user models.User
 	if err := context.ShouldBindJSON(&request); err != nil {
@@ -51,8 +51,8 @@ func GenerateToken(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"message": "Login success", "user": user, "token": tokenString})
 }
 
-func ForgotPasword(context *gin.Context) {
-	var request ForgotPaswordRequest
+func ForgotPassword(context *gin.Context) {
+	var request ForgotPasswordRequest
 	var user models.User
 	if err := context.ShouldBindJSON(&request); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})

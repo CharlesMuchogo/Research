@@ -5,27 +5,47 @@ import (
 	"awesomeProject/database"
 	"awesomeProject/models"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
 func RegisterUser(context *gin.Context) {
-	var user models.User
-	if err := context.ShouldBindJSON(&user); err != nil {
+	var userRequest models.UserDTO
+
+	if err := context.ShouldBindJSON(&userRequest); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		context.Abort()
 		return
 	}
 
-	if err := user.HashPassword(user.Password); err != nil {
+	if err := userRequest.HashPassword(userRequest.Password); err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		context.Abort()
 		return
 	}
 
+	user := models.User{
+		FirstName:      userRequest.FirstName,
+		LastName:       userRequest.LastName,
+		Phone:          userRequest.Phone,
+		Email:          userRequest.Email,
+		Password:       userRequest.Password,
+		ProfilePhoto:   userRequest.ProfilePhoto,
+		Age:            userRequest.Age,
+		EducationLevel: userRequest.EducationLevel,
+		TestedBefore:   userRequest.TestedBefore,
+		Gender:         userRequest.Gender,
+	}
+
 	record := database.Instance.Create(&user)
+
 	if record.Error != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": record.Error.Error()})
+		if strings.Contains(record.Error.Error(), "users_email_key") {
+			context.JSON(http.StatusBadRequest, gin.H{"message": "Email has already been used"})
+		} else {
+			context.JSON(http.StatusInternalServerError, gin.H{"message": record.Error.Error()})
+		}
 		context.Abort()
 		return
 	}
@@ -35,7 +55,7 @@ func RegisterUser(context *gin.Context) {
 		context.Abort()
 		return
 	}
-	context.JSON(http.StatusCreated, gin.H{"message": "Signup success", "user": user, "token": userToken})
+	context.JSON(http.StatusOK, gin.H{"message": "Signup success", "user": user, "token": userToken})
 }
 
 func UpdateUserDetails(context *gin.Context) {

@@ -24,7 +24,11 @@ func main() {
 	database.Migrate()
 
 	router := initRouter()
-	router.Run(":9000")
+	err := router.Run(":9000")
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	}
 }
 
 func initRouter() *gin.Engine {
@@ -46,8 +50,8 @@ func initRouter() *gin.Engine {
 	router.LoadHTMLGlob("templates/*")
 	api := router.Group("/api")
 	{
-		api.POST("/login", controllers.GenerateToken)
-		api.POST("/forgot_password", controllers.ForgotPasword)
+		api.POST("/login", controllers.Login)
+		api.POST("/forgot_password", controllers.ForgotPassword)
 		api.GET("/reset_password", controllers.ResetPassword)
 		api.GET("/delete_account", controllers.DeleteAccountForm)
 		api.GET("/privacy_policy", controllers.PrivacyPolicy)
