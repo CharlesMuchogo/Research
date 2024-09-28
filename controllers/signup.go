@@ -4,6 +4,7 @@ import (
 	"awesomeProject/auth"
 	"awesomeProject/database"
 	"awesomeProject/models"
+	"awesomeProject/models/dto"
 	"net/http"
 	"strings"
 
@@ -11,7 +12,7 @@ import (
 )
 
 func RegisterUser(context *gin.Context) {
-	var userRequest models.UserDTO
+	var userRequest dto.UserDTO
 
 	if err := context.ShouldBindJSON(&userRequest); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -51,7 +52,7 @@ func RegisterUser(context *gin.Context) {
 	}
 	userToken, err := auth.GenerateJWT(user)
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Failed to Log you in, please login with your credentials"})
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Signup success!, please login with your credentials"})
 		context.Abort()
 		return
 	}

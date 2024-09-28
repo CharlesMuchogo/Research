@@ -11,7 +11,7 @@ import (
 var jwtKey = []byte("supersecretkey")
 
 func GenerateJWT(user models.User) (tokenString string, err error) {
-	expirationTime := time.Now().Add(72 * time.Hour)
+	expirationTime := time.Now().Add(24 * 90 * time.Hour)
 	claims := &models.JWTClaim{
 		ID:           user.ID,
 		Email:        user.Email,
@@ -48,7 +48,7 @@ func ValidateToken(signedToken string) (context.Context, error) {
 	}
 
 	if claims.ExpiresAt < time.Now().Local().Unix() {
-		return nil, errors.New("token expired")
+		return nil, errors.New("Your authentication token expired. Login again to continue")
 	}
 	ctx := context.WithValue(context.Background(), "userClaims", claims)
 	return ctx, nil

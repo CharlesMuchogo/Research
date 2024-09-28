@@ -4,9 +4,12 @@ import (
 	"awesomeProject/auth"
 	"awesomeProject/database"
 	"awesomeProject/models"
+	"awesomeProject/models/dto"
 	"awesomeProject/utils"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 	"time"
@@ -57,6 +60,14 @@ func UploadResults(context *gin.Context) {
 	now := time.Now().In(nairobiLocation)
 	formattedDateTime := now.Format("02/01/2006 15:04")
 
+	user, err := database.GetUserById(userId)
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong"})
+		context.Abort()
+		return
+	}
+
 	results := models.Results{
 		Results:        context.PostForm("results"),
 		PartnerResults: context.PostForm("partner_results"),
@@ -66,6 +77,7 @@ func UploadResults(context *gin.Context) {
 		Date:           formattedDateTime,
 		Status:         "Pending",
 		UserId:         userId,
+		User:           user,
 	}
 
 	record := database.Instance.Create(&results)
@@ -75,7 +87,7 @@ func UploadResults(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": "Test submitted successfully", "data": results})
+	context.JSON(http.StatusOK, gin.H{"message": "Test submitted successfully", "results": results})
 }
 
 func GetResults(context *gin.Context) {
@@ -98,4 +110,41 @@ func GetResults(context *gin.Context) {
 		}
 	}
 	context.JSON(http.StatusOK, gin.H{"message": "Results fetched successfully", "results": results})
+}
+
+func UpdateResults(context *gin.Context) {
+	var request dto.ResultDTO
+	var results models.Results
+
+	if err := context.ShouldBindJSON(&request); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		context.Abort()
+		return
+	}
+
+	if err := database.Instance.Preload("User").Where("uuid = ?", request.UUID).Find(&results).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid results"})
+			return
+		}
+
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
+		return
+	}
+
+	if results.Date == "" {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid results"})
+		return
+	}
+
+	results.Results = request.Results
+	results.PartnerResults = request.PartnerResults
+	results.Status = request.Status
+
+	if err := database.Instance.Save(&results).Error; err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "Results updated successfully", "results": results})
 }

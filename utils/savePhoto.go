@@ -12,7 +12,6 @@ import (
 
 func SavePhoto(c *gin.Context, file *multipart.FileHeader, userID string) (string, error) {
 	assetsDir := os.Getenv("PHOTO_DIRECTORY")
-	domain := os.Getenv("DOMAIN_NAME")
 	log.Printf("assetsDir: %s", assetsDir)
 	if _, err := os.Stat(assetsDir); os.IsNotExist(err) {
 		log.Printf("Directory %s does not exist. Creating...", assetsDir)
@@ -34,6 +33,6 @@ func SavePhoto(c *gin.Context, file *multipart.FileHeader, userID string) (strin
 		return "", err
 	}
 
-	photoPath := fmt.Sprintf("%s/images/%s", domain, filename)
+	photoPath := fmt.Sprintf("/images/%s", filename)
 	return photoPath, nil
 }

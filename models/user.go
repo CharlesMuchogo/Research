@@ -15,6 +15,7 @@ type User struct {
 	Age            string `json:"age"`
 	EducationLevel string `json:"educationLevel"`
 	TestedBefore   bool   `json:"testedBefore"`
+	SaveResults    bool   `json:"SaveResults"`
 	Gender         string `json:"gender"`
 }
 

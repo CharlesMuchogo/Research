@@ -61,6 +61,7 @@ func initRouter() *gin.Engine {
 			secured.POST("/clinics", controllers.CreateClinic)
 			secured.GET("/clinics", controllers.GetClinics)
 			secured.POST("/results", controllers.UploadResults)
+			secured.PATCH("/results", controllers.UpdateResults)
 			secured.GET("/results", controllers.GetResults)
 			secured.POST("/user", controllers.UpdateUserDetails)
 			secured.POST("/check_authentication_status", controllers.CheckAuthenticationStatus)

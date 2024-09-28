@@ -31,7 +31,7 @@ func Login(context *gin.Context) {
 	// check if email exists and password is correct
 	record := database.Instance.Where("email = ?", request.Email).First(&user)
 	if record.Error != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "invalid credential"})
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "invalid credentials"})
 		context.Abort()
 		return
 	}
