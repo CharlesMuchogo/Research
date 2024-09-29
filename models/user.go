@@ -11,6 +11,7 @@ type User struct {
 	Phone          string `json:"phone"`
 	Email          string `json:"email" gorm:"unique"`
 	Password       string `json:"-"`
+	DeviceId       string `json:"-"`
 	ProfilePhoto   string `json:"profilePhoto"`
 	Age            string `json:"age"`
 	EducationLevel string `json:"educationLevel"`

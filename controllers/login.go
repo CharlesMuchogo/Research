@@ -3,6 +3,7 @@ package controllers
 import (
 	"awesomeProject/auth"
 	"awesomeProject/database"
+	"awesomeProject/fcm"
 	"awesomeProject/models"
 	"awesomeProject/utils"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 type TokenRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	DeviceId string `json:"deviceId"`
 }
 
 type ForgotPasswordRequest struct {
@@ -48,6 +50,8 @@ func Login(context *gin.Context) {
 		context.Abort()
 		return
 	}
+	go fcm.RegisterTopic(user.Phone, request.DeviceId)
+
 	context.JSON(http.StatusOK, gin.H{"message": "Login success", "user": user, "token": tokenString})
 }
 

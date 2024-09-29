@@ -3,6 +3,7 @@ package controllers
 import (
 	"awesomeProject/auth"
 	"awesomeProject/database"
+	"awesomeProject/fcm"
 	"awesomeProject/models"
 	"awesomeProject/models/dto"
 	"awesomeProject/utils"
@@ -87,7 +88,8 @@ func UploadResults(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": "Test submitted successfully", "results": results})
+	go fcm.SendNotification("Test results submission.", "Thank you for submitting your test results. We are reviewing your results, we will be in touch shortly", user.Phone, nil)
+	context.JSON(http.StatusOK, gin.H{"message": "Test results submitted successfully. Wait for the approval of your results.", "result": results})
 }
 
 func GetResults(context *gin.Context) {
@@ -145,6 +147,8 @@ func UpdateResults(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
 		return
 	}
+
+	go fcm.SendNotification("Test results update", "Your test results feedback is ready. Please check the test page to view your results", results.User.Phone, nil)
 
 	context.JSON(http.StatusOK, gin.H{"message": "Results updated successfully", "results": results})
 }

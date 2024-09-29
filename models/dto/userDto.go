@@ -12,8 +12,10 @@ type UserDTO struct {
 	Password       string `json:"password"`
 	ProfilePhoto   string `json:"profilePhoto"`
 	Age            string `json:"age"`
+	DeviceId       string `json:"deviceId"`
 	EducationLevel string `json:"educationLevel"`
 	TestedBefore   bool   `json:"testedBefore"`
+	DisplayResults bool   `json:"displayResults" gorm:"default:true"`
 	Gender         string `json:"gender"`
 }
 
