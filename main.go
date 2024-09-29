@@ -37,7 +37,7 @@ func initRouter() *gin.Engine {
 
 	config := cors.Config{
 		AllowAllOrigins:  true,
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
@@ -61,7 +61,7 @@ func initRouter() *gin.Engine {
 			secured.POST("/clinics", controllers.CreateClinic)
 			secured.GET("/clinics", controllers.GetClinics)
 			secured.POST("/results", controllers.UploadResults)
-			secured.PATCH("/results", controllers.UpdateResults)
+			secured.PUT("/results", controllers.UpdateResults)
 			secured.GET("/results", controllers.GetResults)
 			secured.POST("/user", controllers.UpdateUserDetails)
 			secured.POST("/check_authentication_status", controllers.CheckAuthenticationStatus)
