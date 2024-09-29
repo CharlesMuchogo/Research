@@ -5,6 +5,7 @@ import (
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/messaging"
 	"google.golang.org/api/option"
+	"regexp"
 
 	"io/ioutil"
 	"log"
@@ -51,13 +52,16 @@ func SendNotification(title string, message string, topic string, data map[strin
 }
 
 func RegisterTopic(email string, deviceId string) {
-	log.Printf(deviceId)
-	response, err := Client.SubscribeToTopic(context.Background(), []string{deviceId}, email)
-
+	response, err := Client.SubscribeToTopic(context.Background(), []string{cleanDeviceId(deviceId)}, email)
 	if err != nil {
 		log.Println(err.Error())
 	}
 	log.Println(response)
+}
+
+func cleanDeviceId(deviceId string) string {
+	re := regexp.MustCompile(`[^\w.@_-]`)
+	return re.ReplaceAllString(deviceId, "")
 }
 
 func SendMultiNotification(title string, message string, devices []string) {
