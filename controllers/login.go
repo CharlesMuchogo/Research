@@ -33,13 +33,13 @@ func Login(context *gin.Context) {
 	// check if email exists and password is correct
 	record := database.Instance.Where("email = ?", request.Email).First(&user)
 	if record.Error != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "invalid credentials"})
+		context.JSON(http.StatusBadRequest, gin.H{"message": "invalid credentials"})
 		context.Abort()
 		return
 	}
 	credentialError := user.CheckPassword(request.Password)
 	if credentialError != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"message": "invalid credentials"})
+		context.JSON(http.StatusBadRequest, gin.H{"message": "invalid credentials"})
 		context.Abort()
 		return
 	}
@@ -50,7 +50,7 @@ func Login(context *gin.Context) {
 		context.Abort()
 		return
 	}
-	go fcm.RegisterTopic(user.Email, request.DeviceId)
+	go fcm.RegisterTopic(user.Phone, request.DeviceId)
 
 	context.JSON(http.StatusOK, gin.H{"message": "Login success", "user": user, "token": tokenString})
 }

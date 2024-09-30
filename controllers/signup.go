@@ -57,7 +57,7 @@ func RegisterUser(context *gin.Context) {
 		context.Abort()
 		return
 	}
-	go fcm.RegisterTopic(user.Email, user.DeviceId)
+	go fcm.RegisterTopic(user.Phone, user.DeviceId)
 	context.JSON(http.StatusOK, gin.H{"message": "Signup success", "user": user, "token": userToken})
 }
 
@@ -88,6 +88,6 @@ func UpdateUserDetails(context *gin.Context) {
 		return
 	}
 
-	go fcm.RegisterTopic(user.Email, user.DeviceId)
+	go fcm.RegisterTopic(user.Phone, user.DeviceId)
 	context.JSON(http.StatusOK, gin.H{"message": "Details updated successfully", "user": user})
 }

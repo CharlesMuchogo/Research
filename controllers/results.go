@@ -88,7 +88,7 @@ func UploadResults(context *gin.Context) {
 		return
 	}
 
-	go fcm.SendNotification("Test results submission.", "Thank you for submitting your test results. We are reviewing your results, we will be in touch shortly", user.Email, nil)
+	go fcm.SendNotification("Test results submission.", "Thank you for submitting your test results. We are reviewing your results, we will be in touch shortly", user.Phone, nil)
 	context.JSON(http.StatusOK, gin.H{"message": "Test results submitted successfully. Wait for the approval of your results.", "result": results})
 }
 
@@ -148,7 +148,7 @@ func UpdateResults(context *gin.Context) {
 		return
 	}
 
-	go fcm.SendNotification("Test results update", "Your test results feedback is ready. Please check the test page to view your results", results.User.Email, nil)
+	go fcm.SendNotification("Test results update", "Your test results feedback is ready. Please check the test page to view your results", results.User.Phone, nil)
 
 	context.JSON(http.StatusOK, gin.H{"message": "Results updated successfully", "results": results})
 }
