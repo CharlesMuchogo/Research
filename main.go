@@ -22,7 +22,7 @@ func main() {
 
 	// Initialize Database
 	database.Connect(connectionString)
-	database.Migrate()
+	//database.Migrate()
 	fcm.InitializeFirebase()
 
 	router := initRouter()
@@ -39,10 +39,10 @@ func initRouter() *gin.Engine {
 
 	config := cors.Config{
 		AllowAllOrigins:  true,
+		AllowCredentials: true,
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}
 
@@ -66,6 +66,7 @@ func initRouter() *gin.Engine {
 			secured.PUT("/results", controllers.UpdateResults)
 			secured.GET("/results", controllers.GetResults)
 			secured.POST("/user", controllers.UpdateUserDetails)
+			secured.GET("/users", controllers.GetUserDetails)
 			secured.POST("/check_authentication_status", controllers.CheckAuthenticationStatus)
 		}
 	}
