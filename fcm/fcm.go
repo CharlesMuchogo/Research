@@ -52,7 +52,7 @@ func SendNotification(title string, message string, topic string, data map[strin
 }
 
 func RegisterTopic(email string, deviceId string) {
-	response, err := Client.SubscribeToTopic(context.Background(), []string{cleanDeviceId(deviceId)}, email)
+	response, err := Client.SubscribeToTopic(context.Background(), []string{deviceId}, cleanDeviceId(email))
 	if err != nil {
 		log.Println(err.Error())
 	}

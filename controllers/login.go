@@ -50,7 +50,7 @@ func Login(context *gin.Context) {
 		context.Abort()
 		return
 	}
-	go fcm.RegisterTopic(user.Phone, request.DeviceId)
+	go fcm.RegisterTopic(user.Email, request.DeviceId)
 
 	context.JSON(http.StatusOK, gin.H{"message": "Login success", "user": user, "token": tokenString})
 }
