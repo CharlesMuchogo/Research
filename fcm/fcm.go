@@ -59,9 +59,9 @@ func RegisterTopic(email string, deviceId string) {
 	log.Println(response)
 }
 
-func cleanDeviceId(deviceId string) string {
-	re := regexp.MustCompile(`[^\w.@_-]`)
-	return re.ReplaceAllString(deviceId, "")
+func cleanDeviceId(emailAddress string) string {
+	re := regexp.MustCompile(`\W`)
+	return re.ReplaceAllString(emailAddress, "")
 }
 
 func SendMultiNotification(title string, message string, devices []string) {
