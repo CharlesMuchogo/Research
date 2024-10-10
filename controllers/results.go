@@ -106,7 +106,7 @@ func GetResults(context *gin.Context) {
 			return
 		}
 	} else {
-		if err := database.Instance.Preload("User").Where("user_id = ?", user.ID).Find(&results).Error; err != nil {
+		if err := database.Instance.Preload("User").Where("user_id = ? AND deleted = false", user.ID).Find(&results).Error; err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
 			return
 		}
@@ -151,4 +151,34 @@ func UpdateResults(context *gin.Context) {
 	go fcm.SendNotification("Test results update", "Your test results feedback is ready. Please check the test page to view your results", results.User.Email, nil)
 
 	context.JSON(http.StatusOK, gin.H{"message": "Results updated successfully", "results": results})
+}
+
+func DeleteResults(context *gin.Context) {
+	var results models.Results
+
+	uuid := context.Query("uuid")
+
+	if err := database.Instance.Preload("User").Where("uuid = ?", uuid).Find(&results).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid test id"})
+			return
+		}
+
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
+		return
+	}
+
+	if results.Date == "" {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid results"})
+		return
+	}
+
+	results.Deleted = true
+
+	if err := database.Instance.Save(&results).Error; err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "Test deleted successfully"})
 }

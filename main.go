@@ -22,14 +22,13 @@ func main() {
 
 	// Initialize Database
 	database.Connect(connectionString)
-	//database.Migrate()
+	database.Migrate()
 	fcm.InitializeFirebase()
 
 	router := initRouter()
 	err := router.Run(":9000")
 	if err != nil {
 		log.Fatal(err.Error())
-		return
 	}
 }
 
@@ -64,6 +63,7 @@ func initRouter() *gin.Engine {
 			secured.GET("/clinics", controllers.GetClinics)
 			secured.POST("/results", controllers.UploadResults)
 			secured.PUT("/results", controllers.UpdateResults)
+			secured.DELETE("/results", controllers.DeleteResults)
 			secured.GET("/results", controllers.GetResults)
 			secured.POST("/user", controllers.UpdateUserDetails)
 			secured.GET("/users", controllers.GetUserDetails)

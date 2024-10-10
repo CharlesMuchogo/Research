@@ -48,7 +48,7 @@ func ValidateToken(signedToken string) (context.Context, error) {
 	}
 
 	if claims.ExpiresAt < time.Now().Local().Unix() {
-		return nil, errors.New("Your authentication token expired. Login again to continue")
+		return nil, errors.New("your authentication token expired. Login again to continue")
 	}
 	ctx := context.WithValue(context.Background(), "userClaims", claims)
 	return ctx, nil

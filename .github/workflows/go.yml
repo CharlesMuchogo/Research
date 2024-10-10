@@ -7,6 +7,8 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
     steps:
     - uses: actions/checkout@v2
 
@@ -41,8 +43,11 @@ jobs:
       run: |
         echo "$PRIVATE_KEY" > private_key.pem && chmod 600 private_key.pem
         ssh -o StrictHostKeyChecking=no -i private_key.pem ${HOSTNAME} 'sudo docker stop $(docker ps -q --filter ancestor=charlesmuchogo/research:latest) && sudo docker pull charlesmuchogo/research:latest && sudo docker run --rm -p 9000:9000 -v myvolume:/app/images -d charlesmuchogo/research:latest && sudo systemctl restart nginx'
-          curl -X POST -H 'Content-type: application/json' --data '{
-           "text": "I have deployed your research project changes successfully!. You can now test your changes"
-          }' ${{ secrets.SLACK_WEBHOOK_URL }}
 
-        
+    # Slack Notification
+    - name: Slack Notification
+      uses: act10ns/slack@v1
+      with:
+        status: ${{ job.status }}
+        steps: ${{ toJson(steps) }}
+      if: always()
