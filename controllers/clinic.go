@@ -3,18 +3,21 @@ package controllers
 import (
 	"awesomeProject/database"
 	"awesomeProject/models"
+	"awesomeProject/models/dto"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
 )
 
 func CreateClinic(context *gin.Context) {
-	var clinic models.Clinic
-	if err := context.ShouldBindJSON(&clinic); err != nil {
+	var clinicDTO dto.CreateClinicDTO
+	if err := context.ShouldBindJSON(&clinicDTO); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		context.Abort()
 		return
 	}
+
+	clinic := clinicDTO.ToClinic()
 
 	record := database.Instance.Create(&clinic)
 

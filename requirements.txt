@@ -1,5 +1,0 @@
-sudo docker build -t research .
-
-sudo docker tag research:latest charlesmuchogo/research:latest
-
-sudo docker push charlesmuchogo/research:latest
