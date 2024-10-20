@@ -17,12 +17,10 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
 	}
-
 	connectionString := database.GetPostgresConnectionString()
-
 	// Initialize Database
 	database.Connect(connectionString)
-	database.Migrate()
+	//database.Migrate()
 	fcm.InitializeFirebase()
 
 	router := initRouter()
@@ -49,6 +47,8 @@ func initRouter() *gin.Engine {
 
 	router.Static("/images", assetsDir)
 	router.LoadHTMLGlob("templates/*")
+
+	//Users
 	api := router.Group("/api")
 	{
 		api.POST("/login", controllers.Login)
@@ -57,17 +57,29 @@ func initRouter() *gin.Engine {
 		api.GET("/delete_account", controllers.DeleteAccountForm)
 		api.GET("/privacy_policy", controllers.PrivacyPolicy)
 		api.POST("/register", controllers.RegisterUser)
-		secured := api.Group("/mobile").Use(middlewares.Auth())
+
+		users := api.Group("/mobile").Use(middlewares.Auth())
 		{
-			secured.POST("/clinics", controllers.CreateClinic)
-			secured.GET("/clinics", controllers.GetClinics)
-			secured.POST("/results", controllers.UploadResults)
-			secured.PUT("/results", controllers.UpdateResults)
-			secured.DELETE("/results", controllers.DeleteResults)
-			secured.GET("/results", controllers.GetResults)
-			secured.POST("/user", controllers.UpdateUserDetails)
-			secured.GET("/users", controllers.GetUserDetails)
-			secured.POST("/check_authentication_status", controllers.CheckAuthenticationStatus)
+			users.GET("/clinics", controllers.GetClinics)
+			users.POST("/results", controllers.UploadResults)
+			users.DELETE("/results", controllers.DeleteResults)
+			users.GET("/results", controllers.GetResults)
+			users.POST("/user", controllers.UpdateUserDetails)
+			users.POST("/check_authentication_status", controllers.CheckAuthenticationStatus)
+		}
+
+	}
+
+	//Admin
+	adminApi := router.Group("/admin")
+	{
+		adminApi.POST("/login", controllers.AdminLogin)
+		admin := adminApi.Group("/api").Use(middlewares.AdminOnly())
+		{
+			admin.PUT("/results", controllers.UpdateResults)
+			admin.POST("/clinics", controllers.CreateClinic)
+			admin.GET("/results", controllers.GetAllResults)
+			admin.GET("/users", controllers.GetUserDetails)
 		}
 	}
 	return router

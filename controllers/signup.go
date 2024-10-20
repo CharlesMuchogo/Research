@@ -21,30 +21,19 @@ func RegisterUser(context *gin.Context) {
 		return
 	}
 
-	if err := userRequest.HashPassword(userRequest.Password); err != nil {
+	user := userRequest.ToUser()
+
+	if err := user.HashPassword(userRequest.Password); err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		context.Abort()
 		return
-	}
-
-	user := models.User{
-		FirstName:      userRequest.FirstName,
-		LastName:       userRequest.LastName,
-		Phone:          userRequest.Phone,
-		Email:          userRequest.Email,
-		Password:       userRequest.Password,
-		ProfilePhoto:   userRequest.ProfilePhoto,
-		Age:            userRequest.Age,
-		EducationLevel: userRequest.EducationLevel,
-		TestedBefore:   userRequest.TestedBefore,
-		Gender:         userRequest.Gender,
 	}
 
 	record := database.Instance.Create(&user)
 
 	if record.Error != nil {
 		if strings.Contains(record.Error.Error(), "users_email_key") {
-			context.JSON(http.StatusBadRequest, gin.H{"message": "Email has already been used"})
+			context.JSON(http.StatusBadRequest, gin.H{"message": "An account with this email exists"})
 		} else {
 			context.JSON(http.StatusInternalServerError, gin.H{"message": record.Error.Error()})
 		}

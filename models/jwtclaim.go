@@ -9,6 +9,7 @@ type JWTClaim struct {
 	LastName     string `json:"lastName"`
 	Phone        string `json:"phone"`
 	Password     string `json:"password"`
+	Role         string `json:"role"`
 	ProfilePhoto string `json:"profilePhoto"`
 	jwt.StandardClaims
 }

@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"golang.org/x/crypto/bcrypt"
+	"awesomeProject/models"
 )
 
 type UserDTO struct {
@@ -19,19 +19,18 @@ type UserDTO struct {
 	Gender         string `json:"gender"`
 }
 
-func (user *UserDTO) HashPassword(password string) error {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	if err != nil {
-		return err
+func (user UserDTO) ToUser() models.User {
+	return models.User{
+		FirstName:      user.FirstName,
+		LastName:       user.LastName,
+		Phone:          user.Phone,
+		Email:          user.Email,
+		Password:       user.Password,
+		ProfilePhoto:   user.ProfilePhoto,
+		Age:            user.Age,
+		EducationLevel: user.EducationLevel,
+		TestedBefore:   user.TestedBefore,
+		Gender:         user.Gender,
+		Role:           "user",
 	}
-	user.Password = string(bytes)
-	return nil
-}
-
-func (user *UserDTO) CheckPassword(providedPassword string) error {
-	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(providedPassword))
-	if err != nil {
-		return err
-	}
-	return nil
 }

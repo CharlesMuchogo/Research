@@ -113,6 +113,16 @@ func GetResults(context *gin.Context) {
 	}
 	context.JSON(http.StatusOK, gin.H{"message": "Results fetched successfully", "results": results})
 }
+func GetAllResults(context *gin.Context) {
+	var results []models.Results
+
+	if err := database.Instance.Preload("User").Find(&results).Error; err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "Results fetched successfully", "results": results})
+}
 
 func UpdateResults(context *gin.Context) {
 	var request dto.ResultDTO

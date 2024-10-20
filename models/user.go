@@ -18,6 +18,7 @@ type User struct {
 	TestedBefore   bool   `json:"testedBefore"`
 	SaveResults    bool   `json:"SaveResults"`
 	Gender         string `json:"gender"`
+	Role           string `json:"role"`
 }
 
 func (user *User) HashPassword(password string) error {
