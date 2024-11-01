@@ -6,6 +6,7 @@ import (
 	"awesomeProject/fcm"
 	"awesomeProject/models"
 	"awesomeProject/utils"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -124,6 +125,13 @@ func ForgotPassword(context *gin.Context) {
 
 func ResetPassword(context *gin.Context) {
 	context.HTML(200, "resetPassword.html", nil)
+}
+
+func UpdatePassword(context *gin.Context) {
+	tokenString := context.GetHeader("Authorization")
+
+	fmt.Printf("token is %s \n", tokenString)
+	context.HTML(200, "privacyPolicy.html", nil)
 }
 
 func DeleteAccountForm(context *gin.Context) {

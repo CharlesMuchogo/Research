@@ -54,6 +54,7 @@ func initRouter() *gin.Engine {
 		api.POST("/login", controllers.Login)
 		api.POST("/forgot_password", controllers.ForgotPassword)
 		api.GET("/reset_password", controllers.ResetPassword)
+		api.POST("/update_password", controllers.UpdatePassword)
 		api.GET("/delete_account", controllers.DeleteAccountForm)
 		api.GET("/privacy_policy", controllers.PrivacyPolicy)
 		api.POST("/register", controllers.RegisterUser)

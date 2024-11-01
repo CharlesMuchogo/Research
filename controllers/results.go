@@ -12,7 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -94,23 +93,16 @@ func UploadResults(context *gin.Context) {
 
 func GetResults(context *gin.Context) {
 	var results []models.Results
-	fetchAll := context.Query("all")
 
 	tokenString := context.GetHeader("Authorization")
 
 	user, _ := auth.GetUserDetailsFromToken(tokenString)
 
-	if fetchAllBool, err := strconv.ParseBool(fetchAll); err == nil && fetchAllBool {
-		if err := database.Instance.Preload("User").Find(&results).Error; err != nil {
-			context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
-			return
-		}
-	} else {
-		if err := database.Instance.Preload("User").Where("user_id = ? AND deleted = false", user.ID).Find(&results).Error; err != nil {
-			context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
-			return
-		}
+	if err := database.Instance.Preload("User").Where("user_id = ? AND deleted = false", user.ID).Find(&results).Error; err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
+		return
 	}
+
 	context.JSON(http.StatusOK, gin.H{"message": "Results fetched successfully", "results": results})
 }
 func GetAllResults(context *gin.Context) {
