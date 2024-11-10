@@ -140,3 +140,6 @@ func DeleteAccountForm(context *gin.Context) {
 func PrivacyPolicy(context *gin.Context) {
 	context.HTML(200, "privacyPolicy.html", nil)
 }
+func TermsAndConditions(context *gin.Context) {
+	context.HTML(200, "termsAndConditions.html", nil)
+}

@@ -20,7 +20,7 @@ func main() {
 	connectionString := database.GetPostgresConnectionString()
 	// Initialize Database
 	database.Connect(connectionString)
-	//database.Migrate()
+	database.Migrate()
 	fcm.InitializeFirebase()
 
 	router := initRouter()
@@ -47,6 +47,9 @@ func initRouter() *gin.Engine {
 
 	router.Static("/images", assetsDir)
 	router.LoadHTMLGlob("templates/*")
+	router.GET("/delete_account", controllers.DeleteAccountForm)
+	router.GET("/privacy_policy", controllers.PrivacyPolicy)
+	router.GET("/terms_and_conditions", controllers.TermsAndConditions)
 
 	//Users
 	api := router.Group("/api")
@@ -55,8 +58,6 @@ func initRouter() *gin.Engine {
 		api.POST("/forgot_password", controllers.ForgotPassword)
 		api.GET("/reset_password", controllers.ResetPassword)
 		api.POST("/update_password", controllers.UpdatePassword)
-		api.GET("/delete_account", controllers.DeleteAccountForm)
-		api.GET("/privacy_policy", controllers.PrivacyPolicy)
 		api.POST("/register", controllers.RegisterUser)
 
 		users := api.Group("/mobile").Use(middlewares.Auth())
