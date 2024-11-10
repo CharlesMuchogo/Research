@@ -34,12 +34,15 @@ func RegisterUser(context *gin.Context) {
 	if record.Error != nil {
 		if strings.Contains(record.Error.Error(), "users_email_key") {
 			context.JSON(http.StatusBadRequest, gin.H{"message": "An account with this email exists"})
+		} else if strings.Contains(record.Error.Error(), "users_phone_key") {
+			context.JSON(http.StatusInternalServerError, gin.H{"message": "An account with this phone number exists"})
 		} else {
 			context.JSON(http.StatusInternalServerError, gin.H{"message": record.Error.Error()})
 		}
 		context.Abort()
 		return
 	}
+
 	userToken, err := auth.GenerateJWT(user)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Signup success!, please login with your credentials"})
