@@ -131,15 +131,19 @@ func UpdatePassword(context *gin.Context) {
 	tokenString := context.GetHeader("Authorization")
 
 	fmt.Printf("token is %s \n", tokenString)
-	context.HTML(200, "privacyPolicy.html", nil)
+	context.HTML(http.StatusOK, "privacyPolicy.html", nil)
 }
 
 func DeleteAccountForm(context *gin.Context) {
-	context.HTML(200, "DeleteAccount.html", nil)
+	context.HTML(http.StatusOK, "DeleteAccount.html", nil)
 }
+
 func PrivacyPolicy(context *gin.Context) {
-	context.HTML(200, "privacyPolicy.html", nil)
+	context.HTML(http.StatusOK, "privacyPolicy.html", nil)
 }
 func TermsAndConditions(context *gin.Context) {
-	context.HTML(200, "termsAndConditions.html", nil)
+	context.HTML(http.StatusOK, "termsAndConditions.html", nil)
+}
+func NotFound(context *gin.Context) {
+	context.HTML(http.StatusNotFound, "404.html", nil)
 }

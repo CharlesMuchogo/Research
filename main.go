@@ -47,6 +47,7 @@ func initRouter() *gin.Engine {
 
 	router.Static("/images", assetsDir)
 	router.LoadHTMLGlob("templates/*")
+	router.NoRoute(controllers.NotFound)
 	router.GET("/delete_account", controllers.DeleteAccountForm)
 	router.GET("/privacy_policy", controllers.PrivacyPolicy)
 	router.GET("/terms_and_conditions", controllers.TermsAndConditions)
