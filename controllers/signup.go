@@ -38,7 +38,7 @@ func RegisterUser(context *gin.Context) {
 	if record.Error != nil {
 		if strings.Contains(record.Error.Error(), "users_email_key") {
 			context.JSON(http.StatusBadRequest, gin.H{"message": "An account with this email exists"})
-		} else if strings.Contains(record.Error.Error(), "phone_key") {
+		} else if strings.Contains(record.Error.Error(), "users_phone") {
 			context.JSON(http.StatusInternalServerError, gin.H{"message": "An account with this phone number exists"})
 		} else {
 			context.JSON(http.StatusInternalServerError, gin.H{"message": record.Error.Error()})
