@@ -20,7 +20,7 @@ type User struct {
 	SaveResults    bool      `json:"SaveResults"`
 	Gender         string    `json:"gender"`
 	Role           string    `json:"role"`
-	CreatedAt      time.Time `json:"createdAt"`
+	CreatedAt      time.Time `gorm:"autoCreateTime" json:"createdAt"`
 }
 
 func (user *User) HashPassword(password string) error {

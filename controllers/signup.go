@@ -8,6 +8,7 @@ import (
 	"awesomeProject/models/dto"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -29,12 +30,15 @@ func RegisterUser(context *gin.Context) {
 		return
 	}
 
+	user.CreatedAt = time.Now()
+	user.DeviceId = userRequest.DeviceId
+
 	record := database.Instance.Create(&user)
 
 	if record.Error != nil {
 		if strings.Contains(record.Error.Error(), "users_email_key") {
 			context.JSON(http.StatusBadRequest, gin.H{"message": "An account with this email exists"})
-		} else if strings.Contains(record.Error.Error(), "users_phone_key") {
+		} else if strings.Contains(record.Error.Error(), "phone_key") {
 			context.JSON(http.StatusInternalServerError, gin.H{"message": "An account with this phone number exists"})
 		} else {
 			context.JSON(http.StatusInternalServerError, gin.H{"message": record.Error.Error()})
