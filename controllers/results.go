@@ -108,7 +108,7 @@ func GetResults(context *gin.Context) {
 func GetAllResults(context *gin.Context) {
 	var results []models.Results
 
-	if err := database.Instance.Preload("User").Find(&results).Error; err != nil {
+	if err := database.Instance.Preload("User").Order("id DESC").Find(&results).Error; err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
 		return
 	}

@@ -77,6 +77,7 @@ func UpdateUserDetails(context *gin.Context) {
 	user.FirstName = userFromToken.FirstName
 	user.LastName = userFromToken.LastName
 	user.ProfilePhoto = userFromToken.ProfilePhoto
+	user.CreatedAt = time.Now()
 
 	if err := database.Instance.Save(&user).Error; err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not update user details"})
