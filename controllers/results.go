@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -113,7 +114,7 @@ func GetAllResults(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": "Results fetched successfully", "results": results})
+	context.JSON(http.StatusOK, gin.H{"message": os.Getenv("PHOTO_DIRECTORY"), "results": results})
 }
 
 func UpdateResults(context *gin.Context) {
