@@ -34,7 +34,7 @@ func UploadResults(context *gin.Context) {
 
 	var userImageLink string
 	if userTestResultsPhoto != nil {
-		userImageLink, err = utils.SavePhoto(context, userTestResultsPhoto, phone)
+		userImageLink, err = utils.SavePhoto(userTestResultsPhoto, phone)
 		if err != nil {
 			fmt.Println(err.Error())
 			context.JSON(http.StatusInternalServerError, gin.H{"message": "Error uploading test image"})
@@ -44,7 +44,7 @@ func UploadResults(context *gin.Context) {
 
 	var partnerImageLink string
 	if partnerTestResultsPhoto != nil {
-		partnerImageLink, err = utils.SavePhoto(context, partnerTestResultsPhoto, phone)
+		partnerImageLink, err = utils.SavePhoto(partnerTestResultsPhoto, phone)
 		if err != nil {
 			fmt.Println(err.Error())
 			context.JSON(http.StatusInternalServerError, gin.H{"message": "Error uploading partner test image"})

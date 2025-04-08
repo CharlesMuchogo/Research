@@ -2,37 +2,52 @@ package utils
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"log"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"mime"
 	"mime/multipart"
 	"os"
 	"path/filepath"
 	"time"
 )
 
-func SavePhoto(c *gin.Context, file *multipart.FileHeader, userID string) (string, error) {
-	assetsDir := os.Getenv("PHOTO_DIRECTORY")
-	log.Printf("assetsDir: %s", assetsDir)
-	if _, err := os.Stat(assetsDir); os.IsNotExist(err) {
-		log.Printf("Directory %s does not exist. Creating...", assetsDir)
-		if err := os.Mkdir(assetsDir, 0755); err != nil {
-			return "", err
-		}
+func SavePhoto(file *multipart.FileHeader, userID string) (string, error) {
+
+	region := os.Getenv("AWS_REGION")
+	bucket := os.Getenv("AWS_BUCKET")
+
+	sess, err := session.NewSession(&aws.Config{
+		Region: aws.String(region),
+	})
+	if err != nil {
+		fmt.Println("Error creating session:", err)
+		return "", err
 	}
+	svc := s3.New(sess)
 
 	fileExt := filepath.Ext(file.Filename)
 	currentTimestamp := time.Now().UnixNano() / int64(time.Millisecond)
+	key := fmt.Sprintf("%d_%s%s", currentTimestamp, userID, fileExt)
 
-	filename := fmt.Sprintf("%d_%s%s", currentTimestamp, userID, fileExt)
-
-	dst := filepath.Join(assetsDir, filename)
-	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+	src, err := file.Open()
+	if err != nil {
+		fmt.Println("Error opening file:", err)
 		return "", err
 	}
-	if err := c.SaveUploadedFile(file, dst); err != nil {
+	defer src.Close()
+
+	_, err = svc.PutObject(&s3.PutObjectInput{
+		Bucket:      aws.String(bucket),
+		Key:         aws.String(key),
+		Body:        src,
+		ContentType: aws.String(mime.TypeByExtension(fileExt)), // Optional MIME type detection
+	})
+	if err != nil {
+		fmt.Println("Error uploading file:", err)
 		return "", err
 	}
 
-	photoPath := fmt.Sprintf("/images/%s", filename)
-	return photoPath, nil
+	return fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", bucket, region, key), nil
+
 }
