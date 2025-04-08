@@ -46,11 +46,13 @@ func Login(context *gin.Context) {
 	}
 
 	tokenString, err := auth.GenerateJWT(user)
+
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		context.Abort()
 		return
 	}
+
 	go fcm.RegisterTopic(user.Email, request.DeviceId)
 
 	context.JSON(http.StatusOK, gin.H{"message": "Login success", "user": user, "token": tokenString})
@@ -119,7 +121,7 @@ func ForgotPassword(context *gin.Context) {
 		context.Abort()
 		return
 	}
-	go utils.SendMail(user, tokenString)
+	go utils.SendForgotPasswordEmail(user, tokenString)
 	context.JSON(http.StatusOK, gin.H{"message": "Please check your email for reset instructions", "token": tokenString})
 }
 

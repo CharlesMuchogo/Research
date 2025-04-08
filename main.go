@@ -24,6 +24,8 @@ func main() {
 	fcm.InitializeFirebase()
 
 	router := initRouter()
+
+	//Set up AWS
 	err := router.Run(":9000")
 	if err != nil {
 		log.Fatal(err.Error())
@@ -68,6 +70,8 @@ func initRouter() *gin.Engine {
 			users.DELETE("/results", controllers.DeleteResults)
 			users.GET("/results", controllers.GetResults)
 			users.POST("/user", controllers.UpdateUserDetails)
+			users.GET("/profile", controllers.GetUserProfile)
+			users.PUT("/profile", controllers.UpdateUserProfile)
 			users.POST("/check_authentication_status", controllers.CheckAuthenticationStatus)
 		}
 

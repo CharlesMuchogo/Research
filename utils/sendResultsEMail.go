@@ -6,9 +6,9 @@ import (
 	"net/smtp"
 )
 
-func SendForgotPasswordEmail(user models.User, tokenString string) {
-	from := "xxxxxxxx" // Update with your email
-	password := "xxxxxxxxx" // Update with your email password
+func sendResultsEMail(user models.User, tokenString string) {
+	from := "xxxxxxxx"
+	password := "xxxxxxxxx"
 	to := user.Email
 
 	link := "http://192.168.0.77:9000/api/reset_password?token=" + tokenString
