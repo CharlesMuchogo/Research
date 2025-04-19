@@ -37,7 +37,8 @@ func UpdateUserProfile(context *gin.Context) {
 
 	randomUUID := uuid.New().String()
 
-	var userImageLink string
+	userImageLink := user.ProfilePhoto
+
 	if profilePhoto != nil {
 		userImageLink, err = utils.SavePhoto(profilePhoto, randomUUID)
 		if err != nil {
