@@ -17,6 +17,7 @@ func UpdateUserProfile(context *gin.Context) {
 	var user models.User
 
 	var existingUser models.User
+
 	token := context.GetHeader("Authorization")
 
 	userFromToken, err := auth.GetUserDetailsFromToken(token)

@@ -60,24 +60,35 @@ func RegisterUser(context *gin.Context) {
 func UpdateUserDetails(context *gin.Context) {
 	var user models.User
 
+	var existingUser models.User
+
 	if err := context.ShouldBindJSON(&user); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		context.Abort()
 		return
 	}
 
-	token := context.GetHeader("Authorization")
+	if err := database.Instance.Where("email = ?", user.Email).Find(&existingUser).Error; err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update details"})
+		context.Abort()
+		return
+	}
 
-	userFromToken, _ := auth.GetUserDetailsFromToken(token)
+	if existingUser.Email == "" {
+		context.JSON(http.StatusNotFound, gin.H{"message": "Profile not found"})
+		context.Abort()
+		return
+	}
 
-	user.ID = userFromToken.ID
-	user.Email = userFromToken.Email
-	user.Phone = userFromToken.Phone
-	user.Password = userFromToken.Password
-	user.FirstName = userFromToken.FirstName
-	user.LastName = userFromToken.LastName
-	user.ProfilePhoto = userFromToken.ProfilePhoto
-	user.CreatedAt = time.Now()
+	user.ID = existingUser.ID
+	user.Email = existingUser.Email
+	user.Phone = existingUser.Phone
+	user.Password = existingUser.Password
+	user.FirstName = existingUser.FirstName
+	user.LastName = existingUser.LastName
+	user.ProfilePhoto = existingUser.ProfilePhoto
+	user.Country = existingUser.Country
+	user.CreatedAt = existingUser.CreatedAt
 
 	if err := database.Instance.Save(&user).Error; err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not update user details"})
