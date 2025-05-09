@@ -55,6 +55,7 @@ func UpdateUserProfile(context *gin.Context) {
 	user.ID = existingUser.ID
 	user.Email = existingUser.Email
 	user.Phone = context.PostForm("phone")
+	user.Country = context.PostForm("country")
 	user.Password = existingUser.Password
 	user.FirstName = context.PostForm("first_name")
 	user.LastName = context.PostForm("last_name")
