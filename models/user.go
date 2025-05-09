@@ -15,6 +15,7 @@ type User struct {
 	DeviceId       string    `json:"-"`
 	ProfilePhoto   string    `json:"profilePhoto"`
 	Age            string    `json:"age"`
+	Country        string    `json:"country"`
 	EducationLevel string    `json:"educationLevel"`
 	TestedBefore   bool      `json:"testedBefore"`
 	SaveResults    bool      `json:"SaveResults"`
