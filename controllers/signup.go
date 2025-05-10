@@ -68,7 +68,11 @@ func UpdateUserDetails(context *gin.Context) {
 		return
 	}
 
-	if err := database.Instance.Where("email = ?", user.Email).Find(&existingUser).Error; err != nil {
+	token := context.GetHeader("Authorization")
+
+	userFromToken, _ := auth.GetUserDetailsFromToken(token)
+
+	if err := database.Instance.Where("email = ?", userFromToken.Email).Find(&existingUser).Error; err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update details"})
 		context.Abort()
 		return
