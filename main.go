@@ -72,7 +72,6 @@ func initRouter() *gin.Engine {
 			users.POST("/user", controllers.UpdateUserDetails)
 			users.GET("/profile", controllers.GetUserProfile)
 			users.PUT("/profile", controllers.UpdateUserProfile)
-			users.POST("/check_authentication_status", controllers.CheckAuthenticationStatus)
 		}
 
 	}
