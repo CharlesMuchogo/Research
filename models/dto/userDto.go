@@ -15,6 +15,7 @@ type UserDTO struct {
 	DeviceId       string `json:"deviceId"`
 	EducationLevel string `json:"educationLevel"`
 	TestedBefore   bool   `json:"testedBefore"`
+	Country        string `json:"country"`
 	DisplayResults bool   `json:"displayResults" gorm:"default:true"`
 	Gender         string `json:"gender"`
 }
@@ -31,6 +32,7 @@ func (user UserDTO) ToUser() models.User {
 		EducationLevel: user.EducationLevel,
 		TestedBefore:   user.TestedBefore,
 		Gender:         user.Gender,
+		Country:        user.Country,
 		Role:           "user",
 	}
 }
