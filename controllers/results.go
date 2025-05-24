@@ -144,6 +144,7 @@ func UpdateResults(context *gin.Context) {
 	results.Results = request.Results
 	results.PartnerResults = request.PartnerResults
 	results.Status = request.Status
+	results.Reason = request.Reason
 
 	if err := database.Instance.Save(&results).Error; err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})

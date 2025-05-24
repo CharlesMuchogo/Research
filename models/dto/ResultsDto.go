@@ -7,4 +7,5 @@ type ResultDTO struct {
 	Results        string    `json:"results"`
 	PartnerResults string    `json:"partnerResults"`
 	Status         string    `json:"status"`
+	Reason         string    `json:"reason"`
 }

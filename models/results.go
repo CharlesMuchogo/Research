@@ -14,5 +14,6 @@ type Results struct {
 	User           User      `json:"user"`
 	Date           string    `json:"date"`
 	Status         string    `json:"status"`
+	Reason         string    `json:"reason"`
 	Deleted        bool      `json:"deleted"`
 }
