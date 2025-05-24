@@ -3,6 +3,7 @@ package main
 import (
 	"awesomeProject/controllers"
 	"awesomeProject/database"
+	"awesomeProject/fcm"
 	"awesomeProject/middlewares"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -19,8 +20,8 @@ func main() {
 	connectionString := database.GetPostgresConnectionString()
 	// Initialize Database
 	database.Connect(connectionString)
-	//database.Migrate()
-	//fcm.InitializeFirebase()
+	database.Migrate()
+	fcm.InitializeFirebase()
 
 	router := initRouter()
 
