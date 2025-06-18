@@ -57,15 +57,14 @@ func ValidateToken(signedToken string) (context.Context, error) {
 
 }
 
-func GetUserDetailsFromToken(signedToken string) (*models.JWTClaim, error) {
-	ctx, err := ValidateToken(signedToken)
+func GetUserDetailsFromToken(token string) (*models.JWTClaim, error) {
+	ctx, err := ValidateToken(token)
 	if err != nil {
 		return nil, err
 	}
 
 	claims, ok := ctx.Value("userClaims").(*models.JWTClaim)
 	if !ok {
-
 		return nil, errors.New("couldn't retrieve user claims from context")
 	}
 
