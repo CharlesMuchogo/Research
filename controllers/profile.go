@@ -10,15 +10,17 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
+	"sync"
 )
 
 func UpdateUserProfile(context *gin.Context) {
 
 	var user models.User
-
 	var existingUser models.User
-
 	token := context.GetHeader("Authorization")
+
+	var wg sync.WaitGroup
+	wg.Add(1)
 
 	userFromToken, err := auth.GetUserDetailsFromToken(token)
 
@@ -50,7 +52,6 @@ func UpdateUserProfile(context *gin.Context) {
 	}
 
 	testedBeforeStr := context.PostForm("tested_before")
-
 	testedBefore := testedBeforeStr == "true"
 
 	user.ID = existingUser.ID
@@ -76,8 +77,13 @@ func UpdateUserProfile(context *gin.Context) {
 		return
 	}
 
-	go fcm.RegisterTopic(user.Email, user.DeviceId)
+	go func() {
+		defer wg.Done()
+		fcm.RegisterTopic(user.Email, user.DeviceId)
+	}()
+
 	context.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully", "user": user})
+	wg.Wait()
 }
 
 func GetUserProfile(context *gin.Context) {

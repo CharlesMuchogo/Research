@@ -59,6 +59,7 @@ func Login(context *gin.Context) {
 }
 
 func AdminLogin(context *gin.Context) {
+
 	var request TokenRequest
 	var user models.User
 	if err := context.ShouldBindJSON(&request); err != nil {

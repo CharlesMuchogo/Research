@@ -12,10 +12,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"
+	"sync"
 	"time"
 )
 
 func UploadResults(context *gin.Context) {
+
+	var wg sync.WaitGroup
+	wg.Add(1)
 
 	userTestResultsPhoto, _ := context.FormFile("user_photo")
 	partnerTestResultsPhoto, _ := context.FormFile("partner_photo")
@@ -87,8 +91,13 @@ func UploadResults(context *gin.Context) {
 		return
 	}
 
-	go fcm.SendNotification("Test results submission.", "Thank you for submitting your test results. We are reviewing your results, we will be in touch shortly", user.Email, nil)
+	go func() {
+		defer wg.Done()
+		fcm.SendNotification("Test results submission.", "Thank you for submitting your test results. We are reviewing your results, we will be in touch shortly", user.Email, nil)
+	}()
+
 	context.JSON(http.StatusOK, gin.H{"message": "Test results submitted successfully. Wait for the approval of your results.", "result": results})
+	wg.Wait()
 }
 
 func GetResults(context *gin.Context) {
@@ -119,6 +128,8 @@ func GetAllResults(context *gin.Context) {
 func UpdateResults(context *gin.Context) {
 	var request dto.ResultDTO
 	var results models.Results
+	var wg sync.WaitGroup
+	wg.Add(1)
 
 	if err := context.ShouldBindJSON(&request); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -151,9 +162,13 @@ func UpdateResults(context *gin.Context) {
 		return
 	}
 
-	go fcm.SendNotification("Test results update", "Your test results feedback is ready. Please check the test page to view your results", results.User.Email, nil)
+	go func() {
+		defer wg.Done()
+		fcm.SendNotification("Test results update", "Your test results feedback is ready. Please check the test page to view your results", results.User.Email, nil)
+	}()
 
 	context.JSON(http.StatusOK, gin.H{"message": "Results updated successfully", "results": results})
+	wg.Wait()
 }
 
 func DeleteResults(context *gin.Context) {
