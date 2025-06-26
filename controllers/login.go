@@ -8,6 +8,7 @@ import (
 	"awesomeProject/utils"
 	"fmt"
 	"net/http"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,6 +24,8 @@ type ForgotPasswordRequest struct {
 }
 
 func Login(context *gin.Context) {
+	var wg sync.WaitGroup
+	wg.Add(1)
 	var request TokenRequest
 	var user models.User
 	if err := context.ShouldBindJSON(&request); err != nil {
@@ -32,7 +35,7 @@ func Login(context *gin.Context) {
 	}
 
 	// check if email exists and password is correct
-	record := database.Instance.Where("phone = ? OR email = ?", request.Email, request.Email).First(&user)
+	record := database.DbInstance.Where("phone = ? OR email = ?", request.Email, request.Email).First(&user)
 	if record.Error != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "invalid credentials"})
 		context.Abort()
@@ -53,12 +56,21 @@ func Login(context *gin.Context) {
 		return
 	}
 
-	go fcm.RegisterTopic(user.Email, request.DeviceId)
-
 	context.JSON(http.StatusOK, gin.H{"message": "Login success", "user": user, "token": tokenString})
+
+	go func() {
+		defer wg.Done()
+		go fcm.RegisterTopic(user.Email, request.DeviceId)
+	}()
+
+	wg.Wait()
+
 }
 
 func AdminLogin(context *gin.Context) {
+
+	var wg sync.WaitGroup
+	wg.Add(1)
 
 	var request TokenRequest
 	var user models.User
@@ -69,7 +81,7 @@ func AdminLogin(context *gin.Context) {
 	}
 
 	// check if email exists and password is correct
-	record := database.Instance.Where("email = ?", request.Email).First(&user)
+	record := database.DbInstance.Where("email = ?", request.Email).First(&user)
 	if record.Error != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "invalid credentials"})
 		context.Abort()
@@ -95,21 +107,28 @@ func AdminLogin(context *gin.Context) {
 		context.Abort()
 		return
 	}
-	go fcm.RegisterTopic(user.Email, request.DeviceId)
 
 	context.JSON(http.StatusOK, gin.H{"message": "Login success", "user": user, "token": tokenString})
+
+	go func() {
+		defer wg.Done()
+		go fcm.RegisterTopic(user.Email, request.DeviceId)
+	}()
+	wg.Wait()
 }
 
 func ForgotPassword(context *gin.Context) {
 	var request ForgotPasswordRequest
 	var user models.User
+	var wg sync.WaitGroup
+	wg.Add(1)
 	if err := context.ShouldBindJSON(&request); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		context.Abort()
 		return
 	}
 	// check if email exists
-	record := database.Instance.Where("email = ?", request.Email).First(&user)
+	record := database.DbInstance.Where("email = ?", request.Email).First(&user)
 
 	if record.Error != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": record.Error.Error()})
@@ -122,8 +141,14 @@ func ForgotPassword(context *gin.Context) {
 		context.Abort()
 		return
 	}
-	go utils.SendForgotPasswordEmail(user, tokenString)
+
 	context.JSON(http.StatusOK, gin.H{"message": "Please check your email for reset instructions", "token": tokenString})
+
+	go func() {
+		defer wg.Done()
+		go utils.SendForgotPasswordEmail(user, tokenString)
+	}()
+	wg.Wait()
 }
 
 func ResetPassword(context *gin.Context) {

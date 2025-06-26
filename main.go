@@ -67,6 +67,8 @@ func initRouter() *gin.Engine {
 		{
 			users.GET("/clinics", controllers.GetClinics)
 			users.POST("/results", controllers.UploadResults)
+			users.POST("/messages", controllers.SendMessages)
+			users.GET("/messages", controllers.GetMessages)
 			users.DELETE("/results", controllers.DeleteResults)
 			users.GET("/results", controllers.GetResults)
 			users.POST("/user", controllers.UpdateUserDetails)

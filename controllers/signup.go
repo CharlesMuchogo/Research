@@ -6,15 +6,18 @@ import (
 	"awesomeProject/fcm"
 	"awesomeProject/models"
 	"awesomeProject/models/dto"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
 func RegisterUser(context *gin.Context) {
 	var userRequest dto.UserDTO
+
+	var wg sync.WaitGroup
+	wg.Add(1)
 
 	if err := context.ShouldBindJSON(&userRequest); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -33,7 +36,7 @@ func RegisterUser(context *gin.Context) {
 	user.CreatedAt = time.Now()
 	user.DeviceId = userRequest.DeviceId
 
-	record := database.Instance.Create(&user)
+	record := database.DbInstance.Create(&user)
 
 	if record.Error != nil {
 		if strings.Contains(record.Error.Error(), "users_email_key") {
@@ -53,12 +56,20 @@ func RegisterUser(context *gin.Context) {
 		context.Abort()
 		return
 	}
-	go fcm.RegisterTopic(user.Email, user.DeviceId)
+
 	context.JSON(http.StatusOK, gin.H{"message": "Signup success", "user": user, "token": userToken})
+
+	go func() {
+		defer wg.Done()
+		go fcm.RegisterTopic(user.Email, user.DeviceId)
+	}()
+	wg.Wait()
 }
 
 func UpdateUserDetails(context *gin.Context) {
 	var user models.User
+	var wg sync.WaitGroup
+	wg.Add(1)
 
 	var existingUser models.User
 
@@ -72,7 +83,7 @@ func UpdateUserDetails(context *gin.Context) {
 
 	userFromToken, _ := auth.GetUserDetailsFromToken(token)
 
-	if err := database.Instance.Where("email = ?", userFromToken.Email).Find(&existingUser).Error; err != nil {
+	if err := database.DbInstance.Where("email = ?", userFromToken.Email).Find(&existingUser).Error; err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update details"})
 		context.Abort()
 		return
@@ -94,12 +105,17 @@ func UpdateUserDetails(context *gin.Context) {
 	user.Country = existingUser.Country
 	user.CreatedAt = existingUser.CreatedAt
 
-	if err := database.Instance.Save(&user).Error; err != nil {
+	if err := database.DbInstance.Save(&user).Error; err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not update user details"})
 		context.Abort()
 		return
 	}
 
-	go fcm.RegisterTopic(user.Email, user.DeviceId)
 	context.JSON(http.StatusOK, gin.H{"message": "Details updated successfully", "user": user})
+
+	go func() {
+		defer wg.Done()
+		go fcm.RegisterTopic(user.Email, user.DeviceId)
+	}()
+	wg.Wait()
 }

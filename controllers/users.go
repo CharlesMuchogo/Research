@@ -14,7 +14,7 @@ func GetUserDetails(context *gin.Context) {
 	tokenString := context.GetHeader("Authorization")
 	user, _ := auth.GetUserDetailsFromToken(tokenString)
 
-	if err := database.Instance.Where("email != ?", user.Email).Order("id DESC").Find(&users).Error; err != nil {
+	if err := database.DbInstance.Where("email != ?", user.Email).Order("id DESC").Find(&users).Error; err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
 		return
 	}
