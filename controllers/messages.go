@@ -16,7 +16,8 @@ func SendMessages(context *gin.Context) {
 	token := context.GetHeader("Authorization")
 
 	if err := context.ShouldBindJSON(&message); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid message"})
+
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error() /*"Invalid message"*/})
 		context.Abort()
 		return
 	}
