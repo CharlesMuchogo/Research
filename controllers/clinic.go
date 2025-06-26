@@ -19,7 +19,7 @@ func CreateClinic(context *gin.Context) {
 
 	clinic := clinicDTO.ToClinic()
 
-	record := database.Instance.Create(&clinic)
+	record := database.DbInstance.Create(&clinic)
 
 	if record.Error != nil {
 
@@ -37,7 +37,7 @@ func CreateClinic(context *gin.Context) {
 func GetClinics(context *gin.Context) {
 	var clinics []models.Clinic
 
-	record := database.Instance.Find(&clinics)
+	record := database.DbInstance.Find(&clinics)
 
 	if record.Error != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong. Try again"})

@@ -30,7 +30,7 @@ func UpdateUserProfile(context *gin.Context) {
 		return
 	}
 
-	if err := database.Instance.Where("email = ?", userFromToken.Email).Find(&existingUser).Error; err != nil {
+	if err := database.DbInstance.Where("email = ?", userFromToken.Email).Find(&existingUser).Error; err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update user details"})
 		context.Abort()
 		return
@@ -71,7 +71,7 @@ func UpdateUserProfile(context *gin.Context) {
 	user.DeviceId = context.PostForm("device_id")
 	user.CreatedAt = existingUser.CreatedAt
 
-	if err := database.Instance.Save(&user).Error; err != nil {
+	if err := database.DbInstance.Save(&user).Error; err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update user details"})
 		context.Abort()
 		return
@@ -99,7 +99,7 @@ func GetUserProfile(context *gin.Context) {
 		return
 	}
 
-	if err := database.Instance.Where("email = ?", userFromToken.Email).Find(&user).Error; err != nil {
+	if err := database.DbInstance.Where("email = ?", userFromToken.Email).Find(&user).Error; err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to get user details"})
 		context.Abort()
 		return

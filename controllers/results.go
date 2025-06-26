@@ -84,7 +84,7 @@ func UploadResults(context *gin.Context) {
 		User:           user,
 	}
 
-	record := database.Instance.Create(&results)
+	record := database.DbInstance.Create(&results)
 	if record.Error != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong"})
 		context.Abort()
@@ -107,7 +107,7 @@ func GetResults(context *gin.Context) {
 
 	user, _ := auth.GetUserDetailsFromToken(tokenString)
 
-	if err := database.Instance.Preload("User").Where("user_id = ? AND deleted = false", user.ID).Find(&results).Error; err != nil {
+	if err := database.DbInstance.Preload("User").Where("user_id = ? AND deleted = false", user.ID).Find(&results).Error; err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
 		return
 	}
@@ -117,7 +117,7 @@ func GetResults(context *gin.Context) {
 func GetAllResults(context *gin.Context) {
 	var results []models.Results
 
-	if err := database.Instance.Preload("User").Order("id DESC").Find(&results).Error; err != nil {
+	if err := database.DbInstance.Preload("User").Order("id DESC").Find(&results).Error; err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
 		return
 	}
@@ -137,7 +137,7 @@ func UpdateResults(context *gin.Context) {
 		return
 	}
 
-	if err := database.Instance.Preload("User").Where("uuid = ?", request.UUID).Find(&results).Error; err != nil {
+	if err := database.DbInstance.Preload("User").Where("uuid = ?", request.UUID).Find(&results).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid results"})
 			return
@@ -157,7 +157,7 @@ func UpdateResults(context *gin.Context) {
 	results.Status = request.Status
 	results.Reason = request.Reason
 
-	if err := database.Instance.Save(&results).Error; err != nil {
+	if err := database.DbInstance.Save(&results).Error; err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
 		return
 	}
@@ -176,7 +176,7 @@ func DeleteResults(context *gin.Context) {
 
 	uuid := context.Query("uuid")
 
-	if err := database.Instance.Preload("User").Where("uuid = ?", uuid).Find(&results).Error; err != nil {
+	if err := database.DbInstance.Preload("User").Where("uuid = ?", uuid).Find(&results).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid test id"})
 			return
@@ -193,7 +193,7 @@ func DeleteResults(context *gin.Context) {
 
 	results.Deleted = true
 
-	if err := database.Instance.Save(&results).Error; err != nil {
+	if err := database.DbInstance.Save(&results).Error; err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
 		return
 	}
