@@ -4,7 +4,6 @@ import (
 	"awesomeProject/auth"
 	"awesomeProject/database"
 	"awesomeProject/models"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm/clause"
 	"net/http"
@@ -32,8 +31,6 @@ func SendMessages(context *gin.Context) {
 	}
 
 	message.UserId = userFromToken.ID
-
-	fmt.Printf("message to save is %v", message)
 
 	if err := database.DbInstance.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "user_id"}, {Name: "timestamp"}},
