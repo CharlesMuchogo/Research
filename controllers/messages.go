@@ -42,7 +42,6 @@ func SendMessages(context *gin.Context) {
 	}
 
 	context.JSON(http.StatusOK, gin.H{"message": "Message sent successfully", "data": message})
-
 }
 
 func GetMessages(context *gin.Context) {
@@ -52,7 +51,7 @@ func GetMessages(context *gin.Context) {
 	user, _ := auth.GetUserDetailsFromToken(token)
 
 	if err := database.DbInstance.Where("user_id = ?", user.ID).Find(&messages).Error; err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error() /*"Something went wrong, try again"*/})
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong, try again"})
 		return
 	}
 

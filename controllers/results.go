@@ -169,6 +169,7 @@ func UpdateResults(context *gin.Context) {
 
 	context.JSON(http.StatusOK, gin.H{"message": "Results updated successfully", "results": results})
 	wg.Wait()
+
 }
 
 func DeleteResults(context *gin.Context) {

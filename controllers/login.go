@@ -7,13 +7,12 @@ import (
 	"awesomeProject/models"
 	"awesomeProject/utils"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"sync"
-
-	"github.com/gin-gonic/gin"
 )
 
-type TokenRequest struct {
+type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	DeviceId string `json:"deviceId"`
@@ -26,7 +25,8 @@ type ForgotPasswordRequest struct {
 func Login(context *gin.Context) {
 	var wg sync.WaitGroup
 	wg.Add(1)
-	var request TokenRequest
+
+	var request LoginRequest
 	var user models.User
 	if err := context.ShouldBindJSON(&request); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -60,11 +60,9 @@ func Login(context *gin.Context) {
 
 	go func() {
 		defer wg.Done()
-		go fcm.RegisterTopic(user.Email, request.DeviceId)
+		fcm.RegisterTopic(user.Email, request.DeviceId)
 	}()
-
 	wg.Wait()
-
 }
 
 func AdminLogin(context *gin.Context) {
@@ -72,7 +70,7 @@ func AdminLogin(context *gin.Context) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	var request TokenRequest
+	var request LoginRequest
 	var user models.User
 	if err := context.ShouldBindJSON(&request); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -112,7 +110,7 @@ func AdminLogin(context *gin.Context) {
 
 	go func() {
 		defer wg.Done()
-		go fcm.RegisterTopic(user.Email, request.DeviceId)
+		fcm.RegisterTopic(user.Email, request.DeviceId)
 	}()
 	wg.Wait()
 }
@@ -146,7 +144,7 @@ func ForgotPassword(context *gin.Context) {
 
 	go func() {
 		defer wg.Done()
-		go utils.SendForgotPasswordEmail(user, tokenString)
+		utils.SendForgotPasswordEmail(user, tokenString)
 	}()
 	wg.Wait()
 }
