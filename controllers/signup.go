@@ -84,6 +84,7 @@ func UpdateUserDetails(context *gin.Context) {
 	userFromToken, _ := auth.GetUserDetailsFromToken(token)
 
 	if err := database.DbInstance.Where("email = ?", userFromToken.Email).Find(&existingUser).Error; err != nil {
+
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update details"})
 		context.Abort()
 		return
@@ -115,7 +116,7 @@ func UpdateUserDetails(context *gin.Context) {
 
 	go func() {
 		defer wg.Done()
-		go fcm.RegisterTopic(user.Email, user.DeviceId)
+		fcm.RegisterTopic(user.Email, user.DeviceId)
 	}()
 	wg.Wait()
 }
