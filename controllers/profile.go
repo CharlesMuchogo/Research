@@ -3,14 +3,11 @@ package controllers
 import (
 	"awesomeProject/auth"
 	"awesomeProject/database"
-	"awesomeProject/fcm"
 	"awesomeProject/models"
 	"awesomeProject/utils"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
-	"sync"
 )
 
 func UpdateUserProfile(context *gin.Context) {
@@ -19,18 +16,9 @@ func UpdateUserProfile(context *gin.Context) {
 	var existingUser models.User
 	token := context.GetHeader("Authorization")
 
-	var wg sync.WaitGroup
-	wg.Add(1)
-
 	userFromToken, err := auth.GetUserDetailsFromToken(token)
 
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update user details"})
-		context.Abort()
-		return
-	}
-
-	if err := database.DbInstance.Where("email = ?", userFromToken.Email).Find(&existingUser).Error; err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update user details"})
 		context.Abort()
 		return
@@ -45,10 +33,15 @@ func UpdateUserProfile(context *gin.Context) {
 	if profilePhoto != nil {
 		userImageLink, err = utils.SavePhoto(profilePhoto, randomUUID)
 		if err != nil {
-			fmt.Println(err.Error())
 			context.JSON(http.StatusInternalServerError, gin.H{"message": "Error updating profile"})
 			return
 		}
+	}
+
+	if err := database.DbInstance.Where("email = ?", userFromToken.Email).Find(&existingUser).Error; err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update user details"})
+		context.Abort()
+		return
 	}
 
 	testedBeforeStr := context.PostForm("tested_before")
@@ -77,13 +70,7 @@ func UpdateUserProfile(context *gin.Context) {
 		return
 	}
 
-	go func() {
-		defer wg.Done()
-		fcm.RegisterTopic(user.Email, user.DeviceId)
-	}()
-
 	context.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully", "user": user})
-	wg.Wait()
 }
 
 func GetUserProfile(context *gin.Context) {

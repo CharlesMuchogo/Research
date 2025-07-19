@@ -1,3 +1,5 @@
 /.env
 /credentials.json
 /newkey.pem
+.env
+.env.txt
