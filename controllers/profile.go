@@ -5,6 +5,7 @@ import (
 	"awesomeProject/database"
 	"awesomeProject/models"
 	"awesomeProject/utils"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
@@ -12,8 +13,6 @@ import (
 
 func UpdateUserProfile(context *gin.Context) {
 
-	var user models.User
-	var existingUser models.User
 	token := context.GetHeader("Authorization")
 
 	userFromToken, err := auth.GetUserDetailsFromToken(token)
@@ -28,7 +27,7 @@ func UpdateUserProfile(context *gin.Context) {
 
 	randomUUID := uuid.New().String()
 
-	userImageLink := existingUser.ProfilePhoto
+	var userImageLink string
 
 	if profilePhoto != nil {
 		userImageLink, err = utils.SavePhoto(profilePhoto, randomUUID)
@@ -38,39 +37,33 @@ func UpdateUserProfile(context *gin.Context) {
 		}
 	}
 
-	if err := database.DbInstance.Where("email = ?", userFromToken.Email).Find(&existingUser).Error; err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update user details"})
-		context.Abort()
-		return
-	}
-
 	testedBeforeStr := context.PostForm("tested_before")
 	testedBefore := testedBeforeStr == "true"
 
-	user.ID = existingUser.ID
-	user.Email = existingUser.Email
-	user.Phone = context.PostForm("phone")
-	user.Country = context.PostForm("country")
-	user.Password = existingUser.Password
-	user.FirstName = context.PostForm("first_name")
-	user.LastName = context.PostForm("last_name")
-	user.Gender = context.PostForm("gender")
-	user.Age = context.PostForm("age")
-	user.Role = existingUser.Role
-	user.EducationLevel = existingUser.EducationLevel
-	user.SaveResults = existingUser.SaveResults
-	user.TestedBefore = testedBefore
-	user.ProfilePhoto = userImageLink
-	user.DeviceId = context.PostForm("device_id")
-	user.CreatedAt = existingUser.CreatedAt
-
-	if err := database.DbInstance.Save(&user).Error; err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update user details"})
-		context.Abort()
+	if err := database.DbInstance.Model(&models.User{}).
+		Where("email = ?", userFromToken.Email).
+		Updates(models.User{
+			TestedBefore:   testedBefore,
+			FirstName:      context.PostForm("first_name"),
+			LastName:       context.PostForm("last_name"),
+			ProfilePhoto:   userImageLink,
+			EducationLevel: context.PostForm("education_level"),
+			Phone:          context.PostForm("phone"),
+		}).Error; err != nil {
+		fmt.Printf("Error updating user %s", err.Error())
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update details"})
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully", "user": user})
+	var updatedUser models.User
+	if err := database.DbInstance.
+		Where("email = ?", userFromToken.Email).
+		First(&updatedUser).Error; err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch updated user"})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully", "user": updatedUser})
 }
 
 func GetUserProfile(context *gin.Context) {
