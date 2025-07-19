@@ -42,7 +42,7 @@ jobs:
         
       run: |
         echo "$PRIVATE_KEY" > private_key.pem && chmod 400 private_key.pem
-        ssh -o StrictHostKeyChecking=no -i private_key.pem ${HOSTNAME} 'sudo docker image prune -a -f && sudo docker stop $(docker ps -q --filter ancestor=charlesmuchogo/research:latest) && sudo docker pull charlesmuchogo/research:latest && sudo docker run --rm -p 9000:9000 -v myvolume:/app/images -d charlesmuchogo/research:latest && sudo systemctl restart nginx'
+        ssh -o StrictHostKeyChecking=no -i private_key.pem ${HOSTNAME} 'sudo docker stop $(docker ps -q --filter ancestor=charlesmuchogo/research:latest) && sudo docker image prune -a -f && sudo docker pull charlesmuchogo/research:latest && sudo docker run --rm -p 9000:9000 -v myvolume:/app/images -d charlesmuchogo/research:latest && sudo systemctl restart nginx'
 
     # Slack Notification
     - name: Slack Notification
