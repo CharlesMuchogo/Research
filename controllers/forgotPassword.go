@@ -25,8 +25,11 @@ func ForgotPassword(context *gin.Context) {
 
 	// check if email exists
 	if err := database.DbInstance.Where("email = ?", request.Email).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			context.JSON(http.StatusBadRequest, gin.H{"message": "User not found. Please register"})
+			return
+		}
 		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		context.Abort()
 		return
 	}
 
