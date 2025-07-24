@@ -26,6 +26,7 @@ func Migrate() {
 	DbInstance.AutoMigrate(&models.Results{})
 	DbInstance.AutoMigrate(&models.Clinic{})
 	DbInstance.AutoMigrate(&models.Message{})
+	DbInstance.AutoMigrate(&models.ForgotPassword{})
 	log.Println("Database Migration Completed!")
 }
 
