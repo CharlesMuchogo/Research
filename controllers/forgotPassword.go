@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"awesomeProject/auth"
 	"awesomeProject/database"
 	"awesomeProject/models"
 	"awesomeProject/utils"
@@ -72,18 +73,18 @@ func UpdatePassword(context *gin.Context) {
 		return
 	}
 
-	if time.Since(forgotPasswordRecord.CreatedAt) > 10*time.Minute {
+	if time.Since(forgotPasswordRecord.CreatedAt) > 100*time.Minute {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "You have used an expired link"})
 		return
 	}
 
 	if err := database.DbInstance.Where("id = ?", forgotPasswordRecord.UserId).First(&user).Error; err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Something went wrong updating password"})
 		return
 	}
 
 	if err := user.HashPassword(request.Password); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Something went wrong updating password"})
 		return
 	}
 
@@ -92,7 +93,7 @@ func UpdatePassword(context *gin.Context) {
 		Select("Password").
 		Updates(user).Error; err != nil {
 		fmt.Printf("Error updating user %s", err.Error())
-		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Something went wrong updating password"})
 		return
 	}
 
@@ -101,7 +102,16 @@ func UpdatePassword(context *gin.Context) {
 		Update("deleted_at", time.Now()).
 		Error; err != nil {
 		fmt.Printf("Error updating deleted_at: %s\n", err.Error())
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Something went wrong updating password"})
+		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": "Password reset successfully", "user": user})
+	tokenString, err := auth.GenerateJWT(user)
+
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Something went wrong updating password"})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "Password reset successfully", "token": tokenString, "user": user})
 }
