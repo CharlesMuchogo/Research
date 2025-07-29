@@ -17,7 +17,8 @@ type LoginRequest struct {
 }
 
 type ForgotPasswordRequest struct {
-	Email string `json:"email"`
+	Email  string `json:"email"`
+	Origin string `json:"origin"`
 }
 
 func Login(context *gin.Context) {

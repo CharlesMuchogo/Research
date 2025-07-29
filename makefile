@@ -1,11 +1,15 @@
 run:
-    go run main.go
+	go run main.go
 
 build:
-    docker build -t research .
+	docker build -t research .
 
 tag:
-    docker tag research:latest charlesmuchogo/research:latest
+	docker tag research:latest charlesmuchogo/research:latest
 
 push:
-    docker push charlesmuchogo/research:latest
+	docker push charlesmuchogo/research:latest
+
+dev:
+	@echo "starting dev..."
+	@air
