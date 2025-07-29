@@ -22,11 +22,10 @@ func Connect(connectionString string) {
 }
 
 func Migrate() {
-	DbInstance.AutoMigrate(&models.User{})
-	DbInstance.AutoMigrate(&models.Results{})
-	DbInstance.AutoMigrate(&models.Clinic{})
-	DbInstance.AutoMigrate(&models.Message{})
-	DbInstance.AutoMigrate(&models.ForgotPassword{})
+	err := DbInstance.AutoMigrate(GetSchema()...)
+	if err != nil {
+		log.Printf("Database Migration Failed %s", err.Error())
+	}
 	log.Println("Database Migration Completed!")
 }
 
@@ -45,4 +44,14 @@ func GetPostgresConnectionString() string {
 	port := os.Getenv("PORT")
 
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+}
+
+func GetSchema() []any {
+	return []any{
+		&models.User{},
+		&models.Results{},
+		&models.Clinic{},
+		&models.Message{},
+		&models.ForgotPassword{},
+	}
 }

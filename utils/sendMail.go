@@ -24,7 +24,7 @@ func SendForgotPasswordEmail(user models.User, tokenString string) {
 	domain := os.Getenv("APP_RUNNING_DOMAIN")
 	to := user.Email
 
-	link := fmt.Sprintf("%s/api/reset_password?id=%s", domain, tokenString)
+	link := fmt.Sprintf("https://%s/api/reset_password?id=%s", domain, tokenString)
 
 	tmpl, err := template.ParseFiles("templates/forgot_password.html")
 
