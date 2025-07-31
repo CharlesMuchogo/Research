@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/context"
 	"io"
@@ -24,7 +25,8 @@ type User struct {
 	TestedBefore   bool      `json:"testedBefore"`
 	SaveResults    bool      `json:"SaveResults"`
 	Gender         string    `json:"gender"`
-	Role           string    `json:"role"`
+	Role           string    `json:"role" gorm:"default:user"`
+	LoginType      string    `json:"-" gorm:"default:Password"`
 	CreatedAt      time.Time `gorm:"autoCreateTime" json:"createdAt"`
 }
 
@@ -34,6 +36,7 @@ type GoogleUserInfo struct {
 	VerifiedEmail bool   `json:"verified_email"`
 	Name          string `json:"name"`
 	GivenName     string `json:"given_name"`
+	DisplayName   string `json:"display_name"`
 	FamilyName    string `json:"family_name"`
 	Picture       string `json:"picture"`
 	Locale        string `json:"locale"`
@@ -47,6 +50,16 @@ func (u *GoogleUserInfo) FirstName() string {
 // LastName ...
 func (u *GoogleUserInfo) LastName() string {
 	return u.FamilyName
+}
+
+func (u *GoogleUserInfo) ToUser() User {
+	return User{
+		Email:        u.Email,
+		ProfilePhoto: u.Picture,
+		FirstName:    u.FirstName(),
+		LastName:     u.LastName(),
+		LoginType:    "Google",
+	}
 }
 
 func (user *User) HashPassword(password string) error {
@@ -67,11 +80,10 @@ func (user *User) CheckPassword(providedPassword string) error {
 }
 
 func ValidateGoogleToken(accessToken string) (*GoogleUserInfo, error) {
-	url := "https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=" + accessToken
+	url := "https://oauth2.googleapis.com/tokeninfo?id_token=" + accessToken
 
 	headers := map[string]string{
-		"Accept":        "application/json",
-		"Authorization": "Bearer " + accessToken,
+		"Accept": "application/json",
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -96,6 +108,10 @@ func ValidateGoogleToken(accessToken string) (*GoogleUserInfo, error) {
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	if res.Status != "200 OK" {
+		return nil, errors.New("unable to get user")
 	}
 
 	var userInfo GoogleUserInfo

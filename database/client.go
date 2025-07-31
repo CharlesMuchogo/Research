@@ -2,7 +2,6 @@ package database
 
 import (
 	"awesomeProject/models"
-	"fmt"
 	"gorm.io/driver/postgres"
 	"log"
 	"os"
@@ -13,7 +12,8 @@ import (
 var DbInstance *gorm.DB
 var dbError error
 
-func Connect(connectionString string) {
+func Connect() {
+	connectionString := os.Getenv("PRODUCTION_DATABASE")
 	DbInstance, dbError = gorm.Open(postgres.Open(connectionString), &gorm.Config{})
 	if dbError != nil {
 		log.Fatal(dbError)
@@ -27,23 +27,6 @@ func Migrate() {
 		log.Printf("Database Migration Failed %s", err.Error())
 	}
 	log.Println("Database Migration Completed!")
-}
-
-func GetPostgresConnectionString() string {
-
-	environment := os.Getenv("ENVIRONMENT")
-
-	if environment == "production" {
-		return os.Getenv("PRODUCTION_DATABASE")
-	}
-
-	user := os.Getenv("POSTGRES_USER")
-	password := os.Getenv("POSTGRES_PASSWORD")
-	dbname := os.Getenv("POSTGRES_DB")
-	host := os.Getenv("HOST")
-	port := os.Getenv("PORT")
-
-	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 }
 
 func GetSchema() []any {

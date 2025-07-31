@@ -5,6 +5,9 @@
       <functions>
         <function importPath="awesomeProject/auth" name="GetUserDetailsFromToken" />
       </functions>
+      <methods>
+        <method importPath="firebase.google.com/go/messaging" receiver="*Client" name="SubscribeToTopic" />
+      </methods>
     </inspection_tool>
   </profile>
 </component>

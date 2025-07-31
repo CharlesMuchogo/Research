@@ -9,7 +9,7 @@ type UserDTO struct {
 	LastName       string `json:"lastName"`
 	Phone          string `json:"phone"`
 	Email          string `json:"email" gorm:"unique"`
-	Password       string `json:"password"`
+	Password       string `json:"password" validate:"required,min=4"`
 	ProfilePhoto   string `json:"profilePhoto"`
 	Age            string `json:"age"`
 	DeviceId       string `json:"deviceId"`
