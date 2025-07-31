@@ -5,10 +5,9 @@ import (
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/messaging"
 	"google.golang.org/api/option"
-	"regexp"
-
 	"io/ioutil"
 	"log"
+	"regexp"
 )
 
 var Client *messaging.Client
@@ -36,45 +35,25 @@ func InitializeFirebase() {
 }
 
 func SendNotification(title string, message string, topic string, data map[string]string) {
-	response, err := Client.Send(context.Background(), &messaging.Message{
+	if _, err := Client.Send(context.Background(), &messaging.Message{
 		Notification: &messaging.Notification{
 			Title: title,
 			Body:  message,
 		},
-		Topic: topic,
+		Topic: cleanDeviceId(topic),
 		Data:  data,
-	})
-
-	if err != nil {
+	}); err != nil {
 		log.Println(err.Error())
 	}
-	log.Println(response)
 }
 
 func RegisterTopic(email string, deviceId string) {
-	response, err := Client.SubscribeToTopic(context.Background(), []string{deviceId}, cleanDeviceId(email))
-	if err != nil {
+	if _, err := Client.SubscribeToTopic(context.Background(), []string{deviceId}, cleanDeviceId(email)); err != nil {
 		log.Println(err.Error())
 	}
-	log.Println(response)
 }
 
 func cleanDeviceId(emailAddress string) string {
 	re := regexp.MustCompile(`\W`)
 	return re.ReplaceAllString(emailAddress, "")
-}
-
-func SendMultiNotification(title string, message string, devices []string) {
-	response, err := Client.SendMulticast(context.Background(), &messaging.MulticastMessage{
-		Notification: &messaging.Notification{
-			Title: title,
-			Body:  message,
-		},
-		Tokens: devices,
-	})
-
-	if err != nil {
-		log.Println(err.Error())
-	}
-	log.Println(response)
 }
