@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      ENV: ${{ secrets.ENV }}
+      CREDENTIALS_JSON: ${{ secrets.CREDENTIALS_JSON }}
     steps:
     - uses: actions/checkout@v2
 
