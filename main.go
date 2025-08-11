@@ -15,7 +15,7 @@ func main() {
 
 	// Initialize Database
 	database.Connect()
-	database.Migrate()
+	//database.Migrate()
 
 	//Initialize firebase
 	fcm.InitializeFirebase()
